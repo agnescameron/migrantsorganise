@@ -9,7 +9,7 @@ import GoogleMap from './GoogleMap';
 
 import Airtable from 'airtable';
 
-const LOS_ANGELES_CENTER = [34.0522, -118.2437]
+const BIG_SAINSBURYS = [51.47563, -0.04]
 
 const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg');
 var recordsArr = [];
@@ -158,8 +158,8 @@ function Map() {
 			)}
 			{ !isEmpty(places) && (
 				<GoogleMap
-					defaultZoom={5}
-					defaultCenter={LOS_ANGELES_CENTER}
+					defaultZoom={10}
+					defaultCenter={BIG_SAINSBURYS}
 					bootstrapURLKeys={{ key: process.env.REACT_APP_MAP_KEY }}
 					yesIWantToUseGoogleMapApiInternals
 					onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps, places)}
