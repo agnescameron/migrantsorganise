@@ -15,19 +15,12 @@ const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg
 var recordsArr = [];
 
 const getInfoWindowString = (place) => `
-	<div>
-
-	  <div style="font-size: 14px;">
-		<span style="color: grey;">
-		${place.comment}
-		</span>
-		<span style="color: orange;">${String.fromCharCode(9733).repeat(Math.floor(place.rating))}</span><span style="color: lightgrey;">${String.fromCharCode(9733).repeat(5 - Math.floor(place.rating))}</span>
+	<div class="infoWindows">
+	  <div class="infoWindowName">
+		${place.name}
 	  </div>
-	  <div style="font-size: 14px; color: grey;">
-		${place.latitude}
-	  </div>
-	  <div style="font-size: 14px; color: green;">
-		${place.longitude}
+  	  <div class="infoWindowNotes">
+		${place.notes}
 	  </div>
 	</div>`;
 
@@ -113,6 +106,8 @@ function Map() {
 			return;
 		}
 		})
+
+		setMarkerForm(false)
 	}
 
 	useEffect(() => {
@@ -125,6 +120,8 @@ function Map() {
 		records.forEach(function(record) {
 			recordsArr.push({
 				id: record.id,
+				name: record.get("Location"),
+				notes: record.get("Notes"),
 				longitude: record.get('Longitude'),
 				latitude: record.get('Latitude'),
 			})

@@ -26,6 +26,22 @@
 	padding: 10px;
 }
 
+.infoWindows {
+	width: 100%;
+}
+
+.infoWindowName {
+	color: black;
+	font-size: 1rem;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+.infoWindowNotes {
+	color: grey;
+	font-size: 1rem;
+}
+
 /*Media Queries*/
 
 @media screen and (max-width: 800px) {
@@ -42,3 +58,4 @@
     width: 80vw;
   }
 }
+
