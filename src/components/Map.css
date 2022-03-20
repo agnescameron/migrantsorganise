@@ -1,0 +1,27 @@
+#markerFormContainer {
+	position: fixed;
+	top: 5vh;
+	left: 5vh;
+	padding: 20px;
+	z-index: 100;
+	background-color: white;
+	border-radius: 15px;
+}
+
+#newMarkerForm {
+	display: flex;
+	flex-flow: column nowrap;
+	width: 30vw;
+}
+
+#newMarkerForm > * {
+	margin: 5px;
+}
+
+#placeNotesInput {
+	padding: 0 0 10vh 0;
+}
+
+#submitButton {
+	padding: 10px;
+}
