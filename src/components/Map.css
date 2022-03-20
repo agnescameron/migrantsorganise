@@ -25,3 +25,20 @@
 #submitButton {
 	padding: 10px;
 }
+
+/*Media Queries*/
+
+@media screen and (max-width: 800px) {
+
+  #markerFormContainer {
+    /*width: 100%;*/
+    left: 5vw;
+    right: 5vw;
+    bottom: 5vh;
+    top: auto;
+  }
+
+  #newMarkerForm {
+    width: 80vw;
+  }
+}

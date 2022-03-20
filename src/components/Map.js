@@ -42,7 +42,7 @@ function Map() {
 	const handleApiLoaded = (map, maps, places) => {
 		const markers = [];
 		const infowindows = [];
-		var markerId = ""
+		// var markerId = ""
 
 		console.log(places)
 
