@@ -24,6 +24,7 @@ const getInfoWindowString = (place) => `
 	  </div>
 	</div>`;
 
+let lastOpened = ""
 
 function Map() {
 	const [places, setPlaces] = useState([]);
@@ -61,14 +62,35 @@ function Map() {
 
 		markers.forEach((marker, i) => {
 			marker.addListener('click', () => {
+
+					// open new marker 
 					infowindows[i].open(map, marker);
+
+					//close submission form dialog
+					setMarkerForm(false)
+
+					// check lastOpened is valid and close it
+					closeLastMarker(lastOpened)
+
+					// set new lastOpened to currently open marker
+					lastOpened = infowindows[i]
+
+
 				});
 			});
 	}
 
+	const closeLastMarker = (lastOpened) => {
+
+		lastOpened != "" && lastOpened != undefined ? lastOpened.close() : console.log("no lastOpened exists")
+	
+	}
 
 	//new marker dialog opens on map click
 	const newMarkerForm = (evt, map, maps, places) => {
+
+		closeLastMarker(lastOpened)
+
 
 		setLatLng(evt.latLng)
 		!markerForm ? setMarkerForm(true) : console.log("markerForm: ", markerForm)
