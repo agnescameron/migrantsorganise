@@ -1,21 +1,26 @@
 import React from 'react';
 import isEmpty from 'lodash.isempty';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 import Daffodil from '../img/Daffodil.png'; // Tell webpack this JS file uses this image
 import Notebook from '../img/Notebook.png'; // Tell webpack this JS file uses this image
 import HomeOffice from '../img/HomeOffice.png'; // Tell webpack this JS file uses this image
 import Support from '../img/Support.png'; // Tell webpack this JS file uses this image
+import Cross from '../img/Cross.png'; // Tell webpack this JS file uses this image
+
 
 import "./Map.css"
 
 import GoogleMap from './GoogleMap';
+// import SearchBox from './Searchbox'
 
 import Airtable from 'airtable';
 
 const BIG_SAINSBURYS = [51.47563, -0.04]
+const id = "21fc52ecdc3f25ef"
 
 const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg');
+
 var recordsArr = [];
 
 const getInfoWindowString = (place) => `
@@ -28,6 +33,7 @@ const getInfoWindowString = (place) => `
 	  </div>
 	</div>`;
 
+// manages last opened info dialogue
 let lastOpened = ""
 
 function Map() {
@@ -40,22 +46,19 @@ function Map() {
 	const handleApiLoaded = (map, maps, places) => {
 		const markers = [];
 		const infowindows = [];
-		// var markerId = ""
 
-		console.log(places)
+		// console.log(places)
 
 		map.addListener('click', (mapsMouseEvent) => {
-			console.log('clicked!', mapsMouseEvent.latLng)
+			// console.log('clicked!', mapsMouseEvent.latLng)
 			newMarkerForm(mapsMouseEvent, map, maps, places);
 		});
 
-		// makes places list from Airtable and displays when API loaded
-
-		let images = []
 		let image = ""
 
 		places.forEach(place => {
 
+			// choose icon to render based on type
 			if (place.type == "Hope") {
 				image = Daffodil
 			} else if (place.type == "Memory") {
@@ -83,6 +86,75 @@ function Map() {
 			}));
 		});
 
+
+		// SEARCH BAR CODE
+
+		  // Create the search box and link it to the UI element.
+		  const input = document.getElementById("search-input");
+		  const searchBox = new maps.places.SearchBox(input);
+
+		  // map.controls[maps.ControlPosition.BOTTOM_LEFT].push(input);
+		  // Bias the SearchBox results towards current map's viewport.
+		  map.addListener("bounds_changed", () => {
+		    searchBox.setBounds(map.getBounds());
+		  });
+
+		  // Listen for the event fired when the user selects a prediction and retrieve
+		  // more details for that place.
+		  searchBox.addListener("places_changed", () => {
+		    const places = searchBox.getPlaces();
+
+		    if (places.length == 0) {
+		      return;
+		    }
+
+		    let searchMarkers = []
+		    // Clear out the old markers.
+		    searchMarkers.forEach((searchMarker) => {
+		      searchMarker.setMap(null);
+		    });
+		    searchMarkers = [];
+
+		    // For each place, get the icon, name and location.
+		    const bounds = new maps.LatLngBounds();
+		    console.log(bounds)
+
+		    places.forEach((place) => {
+		      if (!place.geometry || !place.geometry.location) {
+		        console.log("Returned place contains no geometry");
+		        return;
+		      }
+
+		      const icon = {
+		        url: Cross,
+		        size: new maps.Size(24, 24),
+		        origin: new maps.Point(0, 0),
+		        anchor: new maps.Point(11, 11),
+		        scaledSize: new maps.Size(25, 25),
+		      };
+
+		      // Create a marker for each place.
+		      searchMarkers.push(
+		        new maps.Marker({
+		          map,
+		          icon,
+		          title: place.name,
+		          position: place.geometry.location,
+		        })
+		      );
+
+		      if (place.geometry.viewport) {
+		        // Only geocodes have viewport.
+		        bounds.union(place.geometry.viewport);
+		      } else {
+		        bounds.extend(place.geometry.location);
+		      }
+		    });
+		    map.fitBounds(bounds);
+		  });
+
+	  // END OF SEARCH
+
 		markers.forEach((marker, i) => {
 			marker.addListener('click', () => {
 
@@ -97,16 +169,13 @@ function Map() {
 
 					// set new lastOpened to currently open marker
 					lastOpened = infowindows[i]
-
-
 				});
 			});
 	}
 
+	// close last marker stored in lastOpened (global var)
 	const closeLastMarker = (lastOpened) => {
-
-		lastOpened != "" && lastOpened != undefined ? lastOpened.close() : console.log("no lastOpened exists")
-	
+		lastOpened != "" && lastOpened != undefined ? lastOpened.close() : console.log("no lastOpened")
 	}
 
 	//new marker dialog opens on map click
@@ -114,15 +183,13 @@ function Map() {
 
 		closeLastMarker(lastOpened)
 
-
 		setLatLng(evt.latLng)
 		!markerForm ? setMarkerForm(true) : console.log("markerForm: ", markerForm)
-		console.log('setting lat lng', evt.latLng)
+		// console.log('setting lat lng', evt.latLng)
 
 		const tempMarker = new maps.Marker({
 				position: evt.latLng,
 				map,
-				icon: "http://maps.google.com/mapfiles/ms/icons/blue.png"
 			})
 
 		map.addListener('click', (mapsMouseEvent) => {
@@ -189,10 +256,11 @@ function Map() {
 				return;
 			} else {
 				setPlaces(recordsArr);
-				console.log("loading " + recordsArr.length + " records from airtable")
+				console.log("loaded " + recordsArr.length + " records")
 			}
 		});
 	}, []); 
+
 
 	return (
 		<div style={{ height: '100vh', width: '100%' }}>
@@ -225,11 +293,18 @@ function Map() {
 					bootstrapURLKeys={{ key: process.env.REACT_APP_MAP_KEY }}
 					yesIWantToUseGoogleMapApiInternals
 					onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps, places)}
-				/>
+		            options={{ mapId: id }}
+				/> 
 			)}
+
+				<input
+			      id="search-input"
+			      type="text"
+			      placeholder="Search for Locations"
+			    />
+
 		</div>
 	);
-  // }
 }
 
 export default Map;

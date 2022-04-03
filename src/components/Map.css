@@ -42,6 +42,16 @@
 	font-size: 1rem;
 }
 
+#search-input {
+	position: fixed; 
+	bottom: 5vh;
+	left: 5vh;
+	padding: 20px;
+	z-index: 100;
+	background-color: white;
+	border-radius: 15px;
+}
+
 /*Media Queries*/
 
 @media screen and (max-width: 800px) {
@@ -52,10 +62,22 @@
     right: 5vw;
     bottom: 5vh;
     top: auto;
+    background-color: rgba(255, 255, 255, 0.6);
   }
 
   #newMarkerForm {
     width: 80vw;
   }
+
+  #search-input {
+	position: fixed; 
+	top: 2vh;
+	left: 2vh;
+	padding: 20px;
+	width: 60vw;
+	z-index: 100;
+	background-color: white;
+	border-radius: 10px;
+}
 }
 
