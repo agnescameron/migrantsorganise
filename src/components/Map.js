@@ -2,9 +2,13 @@ import React from 'react';
 import isEmpty from 'lodash.isempty';
 import { useState, useEffect } from "react";
 
+import Daffodil from '../img/Daffodil.png'; // Tell webpack this JS file uses this image
+import Notebook from '../img/Notebook.png'; // Tell webpack this JS file uses this image
+import HomeOffice from '../img/HomeOffice.png'; // Tell webpack this JS file uses this image
+import Support from '../img/Support.png'; // Tell webpack this JS file uses this image
+
 import "./Map.css"
 
-// examples:
 import GoogleMap from './GoogleMap';
 
 import Airtable from 'airtable';
@@ -46,13 +50,32 @@ function Map() {
 		});
 
 		// makes places list from Airtable and displays when API loaded
+
+		let images = []
+		let image = ""
+
 		places.forEach(place => {
+
+			if (place.type == "Hope") {
+				image = Daffodil
+			} else if (place.type == "Memory") {
+				image = Notebook
+			} else if (place.type == "Home Office") {
+				image = HomeOffice
+			} else if (place.type == "Support") {
+				image = Support
+			} else {
+				image = null
+			}
+
 			markers.push(new maps.Marker({
 			position: {
 				lat: place.latitude,
 				lng: place.longitude,
 			},
 				map,
+				icon: image,
+
 			}));
 
 			infowindows.push(new maps.InfoWindow({
@@ -110,8 +133,16 @@ function Map() {
 	// new marker submission to airtable on form submit
 	const createMarker = (evt) => {
 		evt.preventDefault()
-		console.log(' New marker: \n', "Name: ", evt.target.placename.value + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
-		// console.log(evt.target.lat.value, typeof(evt.target.lat.value))
+
+		// make array of checked attributes
+		let attributes = []
+		evt.target.type.forEach( (check, i) => {
+			if (check.checked == true) {
+				attributes.push(check.value)
+			}
+		})
+
+		console.log(' New marker: \n', "Name: ", evt.target.placename.value + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
 
 		base('Table 1').create([
 		  {
@@ -120,6 +151,7 @@ function Map() {
 			  "Notes": evt.target.notes.value,
 			  "Latitude": parseFloat(evt.target.lat.value),
 			  "Longitude": parseFloat(evt.target.lng.value),
+			  "Type": attributes,
 			}
 		  },
 		], function(err, records) {
@@ -146,6 +178,7 @@ function Map() {
 				notes: record.get("Notes"),
 				longitude: record.get('Longitude'),
 				latitude: record.get('Latitude'),
+				type: record.get('Type')
 			})
 		});
 
@@ -168,6 +201,16 @@ function Map() {
 					<form id="newMarkerForm" onSubmit={createMarker}>
 						<input id="placenameInput" type="text" name="placename" placeholder="Enter Place Name"/>
 						<input id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"/>
+
+						<span><input type="radio" id="hope" name="type" value="Hope" />
+  						<label for="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
+  						<span><input type="radio" id="support" name="type" value="Support" />
+  						<label for="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
+  						<span><input type="radio" id="memory" name="type" value="Memory" />
+  						<label for="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
+  						<span><input type="radio" id="Home Office Location" name="type" value="Home Office" />
+  						<label for="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
+
 						<input type="hidden" name="lat" value={latLng.lat()} />
 						<input type="hidden" name="lng" value={latLng.lng()} />
 						<input id="submitButton" type="submit" value="Add New Note to Map" />
