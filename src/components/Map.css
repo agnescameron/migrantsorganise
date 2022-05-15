@@ -1,5 +1,12 @@
+.App-header {
+	width: 70vw;
+}
+
 #markerFormContainer {
 	position: fixed;
+	display: flex;
+	flex-flow: row;
+	justify-content: center;
 	top: 5vh;
 	left: 5vh;
 	padding: 20px;
@@ -19,11 +26,18 @@
 }
 
 #placeNotesInput {
-	padding: 0 0 10vh 0;
+	padding: 0 0 3vh 0;
 }
 
 #submitButton {
 	padding: 10px;
+	background-color: lightblue;
+}
+
+#closeFormButton {
+	background-color: pink;
+	color: black;
+	height: 5vh;
 }
 
 .infoWindows {
@@ -46,38 +60,115 @@
 	position: fixed; 
 	bottom: 5vh;
 	left: 5vh;
-	padding: 20px;
+	padding: 10px;
 	z-index: 100;
 	background-color: white;
 	border-radius: 15px;
 }
 
+.menuList {
+	width: 30vw;
+	height:  100vh;
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	background-color: white;
+	display: flex;
+	flex-flow: column nowrap;
+	overflow: auto;
+}
+
+.locationItem {
+	/*border-radius: 15px;*/
+	border: 1px white solid;
+	padding: 15px;
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.locationItem:hover {
+	background-color: pink;
+	cursor: alias;
+}
+
+.locationItemInfo {
+	display: flex;
+	flex-flow: column nowrap;
+}
+
+.locationItemName {
+  font-weight: bold;
+}
+
+.locationItemNotes {
+	margin: 1vh 0 1vh 0;
+  font-style: italic;
+}
+
+	.showMenu {
+		position: fixed;
+		bottom: 5vh;
+		left: 5vh;
+		width:  10vw;
+		background-color: red;
+	}
+
 /*Media Queries*/
 
 @media screen and (max-width: 800px) {
 
+	.App-header {
+		width: 100vw;
+	}	
+
   #markerFormContainer {
-    /*width: 100%;*/
-    left: 5vw;
-    right: 5vw;
-    bottom: 5vh;
-    top: auto;
-    background-color: rgba(255, 255, 255, 0.6);
+	width: 100vw;
+	height:  50vh;
+	position: fixed;
+	top: auto;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 0 0 0 0;
+	background-color: white;
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 0px;
   }
 
   #newMarkerForm {
-    width: 80vw;
+    width: 90vw;
+    padding: 3vh;
   }
 
   #search-input {
 	position: fixed; 
 	top: 2vh;
 	left: 2vh;
-	padding: 20px;
+	padding: 10px;
 	width: 60vw;
 	z-index: 100;
 	background-color: white;
 	border-radius: 10px;
-}
+	}
+
+.menuList {
+	width: 100vw;
+	height:  50vh;
+	position: fixed;
+	bottom: 0;
+	background-color: white;
+	display: flex;
+	flex-flow: column nowrap;
+	overflow: auto;
+	}
+
+	.showMenu {
+		position: fixed;
+		bottom: 5vh;
+		left: 5vh;
+		width:  10vw;
+		background-color: red;
+	}
+
 }
 

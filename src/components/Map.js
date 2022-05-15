@@ -12,11 +12,10 @@ import Cross from '../img/Cross.png'; // Tell webpack this JS file uses this ima
 import "./Map.css"
 
 import GoogleMap from './GoogleMap';
-// import SearchBox from './Searchbox'
 
 import Airtable from 'airtable';
 
-const BIG_SAINSBURYS = [51.47563, -0.04]
+const ORIGIN = [51.47563, -0.04]
 const id = "21fc52ecdc3f25ef"
 
 const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg');
@@ -40,6 +39,8 @@ function Map() {
 	const [places, setPlaces] = useState([]);
 	const [latLng, setLatLng] = useState({});
 	const [markerForm, setMarkerForm] = useState(false);
+	const [center, setCenter] = useState(ORIGIN);
+	const [zoom, setZoom] = useState(15);
 
 	// function for airtable API into loaded map 
 	// Refer to https://github.com/google-map-react/google-map-react#use-google-maps-api
@@ -50,7 +51,6 @@ function Map() {
 		// console.log(places)
 
 		map.addListener('click', (mapsMouseEvent) => {
-			// console.log('clicked!', mapsMouseEvent.latLng)
 			newMarkerForm(mapsMouseEvent, map, maps, places);
 		});
 
@@ -59,13 +59,13 @@ function Map() {
 		places.forEach(place => {
 
 			// choose icon to render based on type
-			if (place.type == "Hope") {
+			if (place.type == "A Hopeful Experience") {
 				image = Daffodil
-			} else if (place.type == "Memory") {
+			} else if (place.type == "A Memory") {
 				image = Notebook
-			} else if (place.type == "Home Office") {
+			} else if (place.type == "Home Office/Hostile Environment Location") {
 				image = HomeOffice
-			} else if (place.type == "Support") {
+			} else if (place.type == "A Place of Support") {
 				image = Support
 			} else {
 				image = null
@@ -84,8 +84,8 @@ function Map() {
 			infowindows.push(new maps.InfoWindow({
 				content: getInfoWindowString(place),
 			}));
-		});
 
+		});
 
 		// SEARCH BAR CODE
 
@@ -156,6 +156,21 @@ function Map() {
 	  // END OF SEARCH
 
 		markers.forEach((marker, i) => {
+
+		// 	const openInfoWindow = (window) => {
+		// 	infowindows[window].open(map, marker)
+
+		// 	//close submission form dialog
+		// 	setMarkerForm(false)
+
+		// 	// check lastOpened is valid and close it
+		// 	closeLastMarker(lastOpened)
+
+		// 	// set new lastOpened to currently open marker
+		// 	lastOpened = infowindows[window]
+
+		// }
+
 			marker.addListener('click', () => {
 
 					// open new marker 
@@ -169,8 +184,11 @@ function Map() {
 
 					// set new lastOpened to currently open marker
 					lastOpened = infowindows[i]
+
+					console.log("lastopened = ", lastOpened)
 				});
 			});
+
 	}
 
 	// close last marker stored in lastOpened (global var)
@@ -209,12 +227,23 @@ function Map() {
 			}
 		})
 
-		console.log(' New marker: \n', "Name: ", evt.target.placename.value + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
+
+		var name = ""
+		
+		if(evt.target.placename.value != "") {
+			name = evt.target.placename.value
+			console.log("awww", name)
+		} else {
+			name = attributes
+			console.log("whyyy", name[0], evt.target.placename.value, attributes)
+		}
+
+		console.log(' New marker: \n', "Name: ", name[0] + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
 
 		base('Table 1').create([
 		  {
 			"fields": {
-			  "Location": evt.target.placename.value,
+			  "Location": name[0],
 			  "Notes": evt.target.notes.value,
 			  "Latitude": parseFloat(evt.target.lat.value),
 			  "Longitude": parseFloat(evt.target.lng.value),
@@ -255,11 +284,12 @@ function Map() {
 			if (err) { console.error(err); 
 				return;
 			} else {
-				setPlaces(recordsArr);
+				setPlaces(recordsArr); // State mutation react hook to append a new location to here.!!
 				console.log("loaded " + recordsArr.length + " records")
+				console.log(recordsArr)
 			}
 		});
-	}, []); 
+	}, []);
 
 
 	return (
@@ -268,15 +298,15 @@ function Map() {
 				<div id="markerFormContainer">
 					<form id="newMarkerForm" onSubmit={createMarker}>
 						<input id="placenameInput" type="text" name="placename" placeholder="Enter Place Name"/>
-						<input id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"/>
+						<textarea id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"></textarea>
 
-						<span><input type="radio" id="hope" name="type" value="Hope" />
+						<span><input type="radio" id="hope" name="type" value="A Hopeful Experience" />
   						<label for="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
-  						<span><input type="radio" id="support" name="type" value="Support" />
+  						<span><input type="radio" id="support" name="type" value="A Place of Support" />
   						<label for="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
-  						<span><input type="radio" id="memory" name="type" value="Memory" />
+  						<span><input type="radio" id="memory" name="type" value="A Memory" />
   						<label for="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
-  						<span><input type="radio" id="Home Office Location" name="type" value="Home Office" />
+  						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
   						<label for="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
 
 						<input type="hidden" name="lat" value={latLng.lat()} />
@@ -288,12 +318,13 @@ function Map() {
 			)}
 			{ !isEmpty(places) && (
 				<GoogleMap
-					defaultZoom={10}
-					defaultCenter={BIG_SAINSBURYS}
+					defaultZoom={zoom}
+					center={center}
 					bootstrapURLKeys={{ key: process.env.REACT_APP_MAP_KEY }}
 					yesIWantToUseGoogleMapApiInternals
 					onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps, places)}
 		            options={{ mapId: id }}
+                    fullscreenControl={false}
 				/> 
 			)}
 
@@ -302,6 +333,27 @@ function Map() {
 			      type="text"
 			      placeholder="Search for Locations"
 			    />
+
+		 	<div className="showMenu">
+		 		Menu
+		 	</div>
+
+		    <div className="menuList">
+			    {recordsArr && recordsArr.map((record) =>
+				    	<div className="locationItem" onClick={function() { console.log("centering!", center, zoom); setCenter([record.latitude, record.longitude]); setZoom(zoom) }}>
+					    	<div className="locationItemInfo">
+								<div className="locationItemName">
+						    		{record.name}
+						    	</div>
+						    	<div className="locationItemNotes">
+						    		{record.notes}
+						    	</div>
+					    	</div>
+				    		
+				    	</div>
+			    	)
+				}
+			</div>
 
 		</div>
 	);
