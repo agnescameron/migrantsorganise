@@ -3,7 +3,7 @@ import isEmpty from 'lodash.isempty';
 import { useState, useEffect, useCallback, useRef } from "react";
 
 import Daffodil from '../img/Daffodil.png'; // Tell webpack this JS file uses this image
-import Notebook from '../img/Notebook.png'; // Tell webpack this JS file uses this image
+import Speech from '../img/Speech.png'; // Tell webpack this JS file uses this image
 import HomeOffice from '../img/HomeOffice.png'; // Tell webpack this JS file uses this image
 import Support from '../img/Support.png'; // Tell webpack this JS file uses this image
 import Cross from '../img/Cross.png'; // Tell webpack this JS file uses this image
@@ -62,7 +62,7 @@ function Map() {
 			if (place.type == "A Hopeful Experience") {
 				image = Daffodil
 			} else if (place.type == "A Memory") {
-				image = Notebook
+				image = Speech
 			} else if (place.type == "Home Office/Hostile Environment Location") {
 				image = HomeOffice
 			} else if (place.type == "A Place of Support") {
@@ -274,7 +274,8 @@ function Map() {
 				notes: record.get("Notes"),
 				longitude: record.get('Longitude'),
 				latitude: record.get('Latitude'),
-				type: record.get('Type')
+				type: record.get('Type'),
+				time: record.get('Created').substring(0,10)
 			})
 		});
 
@@ -318,7 +319,7 @@ function Map() {
 			)}
 			{ !isEmpty(places) && (
 				<GoogleMap
-					defaultZoom={zoom}
+					zoom={zoom}
 					center={center}
 					bootstrapURLKeys={{ key: process.env.REACT_APP_MAP_KEY }}
 					yesIWantToUseGoogleMapApiInternals
@@ -340,7 +341,7 @@ function Map() {
 
 		    <div className="menuList">
 			    {recordsArr && recordsArr.map((record) =>
-				    	<div className="locationItem" onClick={function() { console.log("centering!", center, zoom); setCenter([record.latitude, record.longitude]); setZoom(zoom) }}>
+				    	<div className="locationItem" onClick={function() { setCenter([record.latitude, record.longitude]); setZoom(zoom) }}>
 					    	<div className="locationItemInfo">
 								<div className="locationItemName">
 						    		{record.name}

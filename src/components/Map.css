@@ -35,12 +35,14 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 #submitButton {
 	padding: 10px;
 	background-color: lightblue;
+	height: 5vh;
+
 }
 
 #closeFormButton {
 	background-color: pink;
 	color: black;
-	height: 5vh;
+	height: 3vh;
 }
 
 .infoWindows {
@@ -97,6 +99,10 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 	flex-flow: column nowrap;
 }
 
+.locationItemTimestamp {
+	font-style: italic;
+}
+
 .locationItemName {
   font-weight: bold;
 }
@@ -143,6 +149,7 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 	position: fixed; 
 	top: 2vh;
 	left: 2vh;
+	bottom: auto;
 	padding: 10px;
 	width: 60vw;
 	z-index: 100;
