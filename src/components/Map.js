@@ -8,20 +8,18 @@ import HomeOffice from '../img/HomeOffice.png'; // Tell webpack this JS file use
 import Support from '../img/Support.png'; // Tell webpack this JS file uses this image
 import Cross from '../img/Cross.png'; // Tell webpack this JS file uses this image
 
-
 import "./Map.css"
-
+import SearchBar from './SearchBar'
 import GoogleMap from './GoogleMap';
-
 import Airtable from 'airtable';
 
+// values
 const ORIGIN = [51.47563, -0.04]
 const id = "21fc52ecdc3f25ef"
-
 const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg');
-
 var recordsArr = [];
 
+// rendering infoWindow
 const getInfoWindowString = (place) => `
 	<div class="infoWindows">
 	  <div class="infoWindowName">
@@ -35,7 +33,11 @@ const getInfoWindowString = (place) => `
 // manages last opened info dialogue
 let lastOpened = ""
 
+// ****************************************** main Map function ************************************************* //
+
 function Map() {
+
+	// State variables to store
 	const [places, setPlaces] = useState([]);
 	const [latLng, setLatLng] = useState({});
 	const [markerForm, setMarkerForm] = useState(false);
@@ -45,15 +47,17 @@ function Map() {
 	// function for airtable API into loaded map 
 	// Refer to https://github.com/google-map-react/google-map-react#use-google-maps-api
 	const handleApiLoaded = (map, maps, places) => {
+		
+		// array of markers and info windows
 		const markers = [];
 		const infowindows = [];
 
-		// console.log(places)
-
+		// click listener to create new marker input form 
 		map.addListener('click', (mapsMouseEvent) => {
 			newMarkerForm(mapsMouseEvent, map, maps, places);
 		});
 
+		// with array of places, 
 		let image = ""
 
 		places.forEach(place => {
@@ -71,6 +75,7 @@ function Map() {
 				image = null
 			}
 
+			// push latest latlng/icon to a google.maps.marker object -- so the displayed marker and its corresponding infowindow are independent 
 			markers.push(new maps.Marker({
 			position: {
 				lat: place.latitude,
@@ -78,98 +83,19 @@ function Map() {
 			},
 				map,
 				icon: image,
-
 			}));
 
+			// pushes latest place and description to array of infowindows
 			infowindows.push(new maps.InfoWindow({
 				content: getInfoWindowString(place),
 			}));
 
+			// console.log("pushing infowindows to ", infowindows)
+			console.log("pushing markers to ", markers)
+
 		});
 
-		// SEARCH BAR CODE
-
-		  // Create the search box and link it to the UI element.
-		  const input = document.getElementById("search-input");
-		  const searchBox = new maps.places.SearchBox(input);
-
-		  // map.controls[maps.ControlPosition.BOTTOM_LEFT].push(input);
-		  // Bias the SearchBox results towards current map's viewport.
-		  map.addListener("bounds_changed", () => {
-		    searchBox.setBounds(map.getBounds());
-		  });
-
-		  // Listen for the event fired when the user selects a prediction and retrieve
-		  // more details for that place.
-		  searchBox.addListener("places_changed", () => {
-		    const places = searchBox.getPlaces();
-
-		    if (places.length == 0) {
-		      return;
-		    }
-
-		    let searchMarkers = []
-		    // Clear out the old markers.
-		    searchMarkers.forEach((searchMarker) => {
-		      searchMarker.setMap(null);
-		    });
-		    searchMarkers = [];
-
-		    // For each place, get the icon, name and location.
-		    const bounds = new maps.LatLngBounds();
-		    console.log(bounds)
-
-		    places.forEach((place) => {
-		      if (!place.geometry || !place.geometry.location) {
-		        console.log("Returned place contains no geometry");
-		        return;
-		      }
-
-		      const icon = {
-		        url: Cross,
-		        size: new maps.Size(24, 24),
-		        origin: new maps.Point(0, 0),
-		        anchor: new maps.Point(11, 11),
-		        scaledSize: new maps.Size(25, 25),
-		      };
-
-		      // Create a marker for each place.
-		      searchMarkers.push(
-		        new maps.Marker({
-		          map,
-		          icon,
-		          title: place.name,
-		          position: place.geometry.location,
-		        })
-		      );
-
-		      if (place.geometry.viewport) {
-		        // Only geocodes have viewport.
-		        bounds.union(place.geometry.viewport);
-		      } else {
-		        bounds.extend(place.geometry.location);
-		      }
-		    });
-		    map.fitBounds(bounds);
-		  });
-
-	  // END OF SEARCH
-
 		markers.forEach((marker, i) => {
-
-		// 	const openInfoWindow = (window) => {
-		// 	infowindows[window].open(map, marker)
-
-		// 	//close submission form dialog
-		// 	setMarkerForm(false)
-
-		// 	// check lastOpened is valid and close it
-		// 	closeLastMarker(lastOpened)
-
-		// 	// set new lastOpened to currently open marker
-		// 	lastOpened = infowindows[window]
-
-		// }
 
 			marker.addListener('click', () => {
 
@@ -226,7 +152,6 @@ function Map() {
 				attributes.push(check.value)
 			}
 		})
-
 
 		var name = ""
 		
@@ -329,11 +254,8 @@ function Map() {
 				/> 
 			)}
 
-				<input
-			      id="search-input"
-			      type="text"
-			      placeholder="Search for Locations"
-			    />
+				<SearchBar />
+
 
 		 	<div className="showMenu">
 		 		Menu
