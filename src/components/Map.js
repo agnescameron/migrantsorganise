@@ -21,6 +21,7 @@ const id = "21fc52ecdc3f25ef"
 const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg');
 let recordsArr = [];
 let groupsArr = [];
+let typesArr = [];
 
 // rendering infoWindow
 const getInfoWindowString = (place) => `
@@ -102,6 +103,29 @@ function Map() {
 			// console.log("pushing infowindows to ", infowindows)
 			// console.log("pushing markers to ", markers)
 
+						// filtering
+
+
+			$(".filterButton").click(function() {
+
+				let type = $(this).attr("value")
+				console.log("found type as", type)
+				if( place.type == type ) {
+					markers.push(new maps.Marker({
+						position: {
+							lat: place.latitude,
+							lng: place.longitude,
+						},
+							map,
+							icon: image,
+							display: false,
+							"group" : place.group,
+							"name" : place.name,
+						}));				
+
+					}
+				})
+
 		});
 
 		// click listener to display marker
@@ -141,9 +165,7 @@ function Map() {
 				currentGroupMember = 0
 				currentGroup[currentGroupMember].display = true
 			}
-
 			updateMarkers()
-				
 		})
 
 		$(".individualPlace").click(function() {
@@ -200,7 +222,7 @@ function Map() {
 				markers[i].display = false
 			}
 		}
-		}
+	}
 
 	// ******************* interactions with markers ********************** //
 
@@ -299,6 +321,14 @@ function Map() {
 				console.log("found new group called ", group)
 				console.log(groupsArr.includes(group))
 			} 
+
+			// make an array of new types
+			let type = record.get('Type')
+			if ( type != undefined && typesArr.includes(type[0]) == false) {
+				typesArr.push(type[0])
+				console.log("found new group called ", type)
+				console.log(typesArr.includes(type))
+			} 
 		});
 
 			fetchNextPage();
@@ -310,6 +340,7 @@ function Map() {
 				setPlaces(recordsArr); // State mutation react hook to append a new location to here.!!
 				console.log("loaded " + recordsArr.length + " records")
 				console.log("loaded " + groupsArr.length + " groups")
+				console.log("loaded " + typesArr.length + " types")
 			}
 		});
 	}, []);
@@ -360,9 +391,18 @@ function Map() {
 
 		    <div className="menuList">
 
-			    {recordsArr && groupsArr.map((group) =>
+			    {recordsArr && typesArr.map((type) =>
+				    
+				    	<div className="locationItem filterButton" value={type}>Filter Type: {type}</div>
+			    	)
+			}
 
-			    	<div className="locationItem markerGroup" value={group}>Narrative Group: {group}</div>
+
+			    {recordsArr && groupsArr.map((group) =>	
+
+			    	<div>
+				    	<div className="locationItem markerGroup" value={group}>Narrative Group: {group}</div>
+			    	</div>
 
 			    	)}
 
