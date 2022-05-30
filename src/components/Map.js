@@ -19,7 +19,8 @@ import Airtable from 'airtable';
 const ORIGIN = [51.47563, -0.04]
 const id = "21fc52ecdc3f25ef"
 const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg');
-var recordsArr = [];
+let recordsArr = [];
+let groupsArr = [];
 
 // rendering infoWindow
 const getInfoWindowString = (place) => `
@@ -62,6 +63,8 @@ function Map() {
 			newMarkerForm(mapsMouseEvent, map, maps, places);
 		});
 
+		
+
 		// with array of places, 
 		let image = ""
 
@@ -102,67 +105,20 @@ function Map() {
 
 		});
 
-		// for populated markers, add a click listener
+		// click listener to display marker
 		markers.forEach((marker, i) => {
 			marker.addListener('click', () => {
-
-
-				marker.display = !marker.display // toggle display attr
-				console.log("set marker", i, "to", marker.display)
-
-
-				let clickedMarker = marker
-				// clone marker array, splice out i and set all the rest to false, splice i back in
-				let cloneMarkerDisplay = markers.slice() 
-				cloneMarkerDisplay.splice(i, 1)
-				cloneMarkerDisplay.forEach((cloneMarker, j) => { cloneMarker.display = false})
-				cloneMarkerDisplay.splice(i, 0, clickedMarker)
-				markers = cloneMarkerDisplay
-
-				//close markerForm when reading an existing marker
-				setMarkerForm(false)
-
-				// set new lastOpened to currently open marker
-				// keep lastOpened array at length 2 (can be increased)
-				// lastOpened.push(clickedMarker)
-				// if (lastOpened.length > 3) { lastOpened.shift() }
-				// console.log("lastOpened = ", lastOpened)
-
-				// open and close markers
-
+				setMarkerDisplay(marker, i)
 				updateMarkers()
-				
 			});
-		
-			// groupButton.addListener('click', () => {
-
-			// 	marker.groupID == groupButton.ID ? marker.display = true : marker.display = false
-
-			// 	updateMarkers()
-
-			// })
-
-			// const selectGroup = () => {
-
-			// }
 
 		});
-
-
-		//pseudocode: when click button
-
 
 		let currentGroupMember = 0;
 
 		$(".markerGroup").click(function() {
 			let groupValue = $(this).attr("value")
 			let currentGroup = []
-
-			// show all
-			// markers.forEach((marker, i) => {
-			// 	marker.group == groupValue ? marker.display = true : marker.display = false
-			// })
-			// make an array of all the groups that have this value
 
 			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
 
@@ -175,13 +131,11 @@ function Map() {
 			})
 
 			let len = currentGroup.length
-			console.log(len, currentGroupMember)
-
+			// console.log(len, currentGroupMember)
 
 			if (currentGroupMember < len) {
 				resetMarkers()
 				currentGroup[currentGroupMember].display = true
-				// console.log(currentGroup[currentGroupMember])
 				currentGroupMember++
 			} else {
 				resetMarkers()
@@ -190,19 +144,42 @@ function Map() {
 			}
 
 			updateMarkers()
-			// console.log(groupValue)
 				
 		})
 
+		// sets marker display true and false
+		const setMarkerDisplay = (marker, i) => {
 
+			marker.display = !marker.display // toggle display attr
+			console.log("set marker", i, "to", marker.display)
+
+			let clickedMarker = marker
+			let cloneMarkerDisplay = markers.slice() 
+			cloneMarkerDisplay.splice(i, 1)
+			cloneMarkerDisplay.forEach((cloneMarker, j) => { cloneMarker.display = false})
+			cloneMarkerDisplay.splice(i, 0, clickedMarker)
+			markers = cloneMarkerDisplay
+
+			setMarkerForm(false)
+			console.log("closed marker form")
+		}
+
+		// displays marker based on whether true or false
 		const updateMarkers = () => {
 			for (let i=0; i < markers.length; i++) {
 				if (markers[i].display == true) {
 					console.log("opened", i, markers[i].display)
 					infowindows[i].open(map, markers[i]);
+					setZoom(15) // PROBLEM -- this setzoom stops working after bounds change
+
+				// map.addListener('bounds_changed', function(event) {
+				//   if (this.getZoom() < 15) {
+				//     this.setZoom(15);
+				//   }
+				// });
+
 				} else if (markers[i].display == false) {
 					infowindows[i].close(map, markers[i])
-					// console.log("closed", markerDisplay[i])
 				}
 			}
 		}
@@ -303,6 +280,14 @@ function Map() {
 				group: record.get('Group'),
 				time: record.get('Created').substring(0,10)
 			})
+
+			// make an array of new groups
+			let group = record.get('Group')
+			if ( group != undefined && groupsArr.includes(group[0]) == false) {
+				groupsArr.push(group[0])
+				console.log("found new group called ", group)
+				console.log(groupsArr.includes(group))
+			} 
 		});
 
 			fetchNextPage();
@@ -313,13 +298,10 @@ function Map() {
 			} else {
 				setPlaces(recordsArr); // State mutation react hook to append a new location to here.!!
 				console.log("loaded " + recordsArr.length + " records")
-				console.log(recordsArr)
+				console.log("loaded " + groupsArr.length + " groups")
 			}
 		});
 	}, []);
-
-	let groupsArr = ["Scam Colleges", "Detention Story"]
-	console.log(groupsArr)
 
 
 	return (
@@ -366,22 +348,14 @@ function Map() {
 		 	</div>
 
 		    <div className="menuList">
-{/*		    	<div className="locationItem markerGroup" value="Scam Colleges">Group 1: Scam Colleges</div>
-		    	<div className="locationItem markerGroup" value="Detention Story">Group 2: Detention Story</div>
-		    	<div className="locationItem markerGroup" value="3">Group 3</div>
-		    	<div className="locationItem markerGroup" value="4">Group 4</div>
-		    	<div className="locationItem markerGroup" value="5">Group 5</div>*/}
 
 			    {recordsArr && groupsArr.map((group) =>
 
 			    	<div className="locationItem markerGroup" value={group}>Narrative Group: {group}</div>
 
-
 			    	)}
 
-
-
-			    {recordsArr && recordsArr.map((record) =>
+			    {recordsArr && recordsArr.map((record, index) =>
 				    	<div className="locationItem" onClick={function() { setCenter([record.latitude, record.longitude]); setZoom(zoom) }}>
 					    	<div className="locationItemInfo">
 								<div className="locationItemName">
