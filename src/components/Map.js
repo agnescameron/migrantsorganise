@@ -1,6 +1,8 @@
 import React from 'react';
 import isEmpty from 'lodash.isempty';
 import { useState, useEffect, useCallback, useRef } from "react";
+import $ from 'jquery';
+
 
 import Daffodil from '../img/Daffodil.png'; // Tell webpack this JS file uses this image
 import Speech from '../img/Speech.png'; // Tell webpack this JS file uses this image
@@ -31,7 +33,8 @@ const getInfoWindowString = (place) => `
 	</div>`;
 
 // manages last opened info dialogue
-let lastOpened = ""
+let lastOpened = []
+let markerDisplay = []
 
 // ****************************************** main Map function ************************************************* //
 
@@ -47,9 +50,11 @@ function Map() {
 	// function for airtable API into loaded map 
 	// Refer to https://github.com/google-map-react/google-map-react#use-google-maps-api
 	const handleApiLoaded = (map, maps, places) => {
+
+	// ******************** populate markers and infowindows ****************** //
 		
 		// array of markers and info windows
-		const markers = [];
+		let markers = [];
 		const infowindows = [];
 
 		// click listener to create new marker input form 
@@ -75,7 +80,7 @@ function Map() {
 				image = null
 			}
 
-			// push latest latlng/icon to a google.maps.marker object -- so the displayed marker and its corresponding infowindow are independent 
+			// push latest latlng/icon to a google.maps.marker object -- the displayed marker and its corresponding infowindow are independent 
 			markers.push(new maps.Marker({
 			position: {
 				lat: place.latitude,
@@ -83,6 +88,8 @@ function Map() {
 			},
 				map,
 				icon: image,
+				display: false,
+				"group" : place.group,
 			}));
 
 			// pushes latest place and description to array of infowindows
@@ -91,55 +98,148 @@ function Map() {
 			}));
 
 			// console.log("pushing infowindows to ", infowindows)
-			console.log("pushing markers to ", markers)
+			// console.log("pushing markers to ", markers)
 
 		});
 
+		// for populated markers, add a click listener
 		markers.forEach((marker, i) => {
-
 			marker.addListener('click', () => {
 
-					// open new marker 
-					infowindows[i].open(map, marker);
 
-					//close submission form dialog
-					setMarkerForm(false)
+				marker.display = !marker.display // toggle display attr
+				console.log("set marker", i, "to", marker.display)
 
-					// check lastOpened is valid and close it
-					closeLastMarker(lastOpened)
 
-					// set new lastOpened to currently open marker
-					lastOpened = infowindows[i]
+				let clickedMarker = marker
+				// clone marker array, splice out i and set all the rest to false, splice i back in
+				let cloneMarkerDisplay = markers.slice() 
+				cloneMarkerDisplay.splice(i, 1)
+				cloneMarkerDisplay.forEach((cloneMarker, j) => { cloneMarker.display = false})
+				cloneMarkerDisplay.splice(i, 0, clickedMarker)
+				markers = cloneMarkerDisplay
 
-					console.log("lastopened = ", lastOpened)
-				});
+				//close markerForm when reading an existing marker
+				setMarkerForm(false)
+
+				// set new lastOpened to currently open marker
+				// keep lastOpened array at length 2 (can be increased)
+				// lastOpened.push(clickedMarker)
+				// if (lastOpened.length > 3) { lastOpened.shift() }
+				// console.log("lastOpened = ", lastOpened)
+
+				// open and close markers
+
+				updateMarkers()
+				
 			});
+		
+			// groupButton.addListener('click', () => {
 
-	}
+			// 	marker.groupID == groupButton.ID ? marker.display = true : marker.display = false
 
-	// close last marker stored in lastOpened (global var)
-	const closeLastMarker = (lastOpened) => {
-		lastOpened != "" && lastOpened != undefined ? lastOpened.close() : console.log("no lastOpened")
-	}
+			// 	updateMarkers()
 
-	//new marker dialog opens on map click
+			// })
+
+			// const selectGroup = () => {
+
+			// }
+
+		});
+
+
+		//pseudocode: when click button
+
+
+		let currentGroupMember = 0;
+
+		$(".markerGroup").click(function() {
+			let groupValue = $(this).attr("value")
+			let currentGroup = []
+
+			// show all
+			// markers.forEach((marker, i) => {
+			// 	marker.group == groupValue ? marker.display = true : marker.display = false
+			// })
+			// make an array of all the groups that have this value
+
+			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
+
+				if (marker.group == groupValue) {
+					currentGroup.push(marker) // make a currentGroup array containing all the ones to cycle through
+					console.log("markergroup: ", marker.group[0], "groupValue: ", groupValue)
+				} else {
+					marker.display = false
+				}
+			})
+
+			let len = currentGroup.length
+			console.log(len, currentGroupMember)
+
+
+			if (currentGroupMember < len) {
+				resetMarkers()
+				currentGroup[currentGroupMember].display = true
+				// console.log(currentGroup[currentGroupMember])
+				currentGroupMember++
+			} else {
+				resetMarkers()
+				currentGroupMember = 0
+				currentGroup[currentGroupMember].display = true
+			}
+
+			updateMarkers()
+			// console.log(groupValue)
+				
+		})
+
+
+		const updateMarkers = () => {
+			for (let i=0; i < markers.length; i++) {
+				if (markers[i].display == true) {
+					console.log("opened", i, markers[i].display)
+					infowindows[i].open(map, markers[i]);
+				} else if (markers[i].display == false) {
+					infowindows[i].close(map, markers[i])
+					// console.log("closed", markerDisplay[i])
+				}
+			}
+		}
+
+		const resetMarkers = () => {
+			for (let i=0; i < markers.length; i++) {
+				markers[i].display = false
+			}
+		}
+		}
+
+	// ******************* interactions with markers ********************** //
+
 	const newMarkerForm = (evt, map, maps, places) => {
 
-		closeLastMarker(lastOpened)
+		// closeLastMarker(lastOpened[lastOpened.length - 1])
 
 		setLatLng(evt.latLng)
-		!markerForm ? setMarkerForm(true) : console.log("markerForm: ", markerForm)
-		// console.log('setting lat lng', evt.latLng)
 
+		// If no marker form the open it, otherwise print markerForm boolean status
+		!markerForm ? setMarkerForm(true) : console.log("markerForm: ", markerForm)
+
+		// make a temp Marker with current clicked position
 		const tempMarker = new maps.Marker({
 				position: evt.latLng,
 				map,
 			})
 
+		console.log("temp marker: ", tempMarker)
+
 		map.addListener('click', (mapsMouseEvent) => {
 			tempMarker.setMap(null)
 		});
 	}
+
+	// ******************* creating markers into airtable ********************** //
+
 
 	// new marker submission to airtable on form submit
 	const createMarker = (evt) => {
@@ -200,6 +300,7 @@ function Map() {
 				longitude: record.get('Longitude'),
 				latitude: record.get('Latitude'),
 				type: record.get('Type'),
+				group: record.get('Group'),
 				time: record.get('Created').substring(0,10)
 			})
 		});
@@ -216,6 +317,9 @@ function Map() {
 			}
 		});
 	}, []);
+
+	let groupsArr = ["Scam Colleges", "Detention Story"]
+	console.log(groupsArr)
 
 
 	return (
@@ -262,6 +366,21 @@ function Map() {
 		 	</div>
 
 		    <div className="menuList">
+{/*		    	<div className="locationItem markerGroup" value="Scam Colleges">Group 1: Scam Colleges</div>
+		    	<div className="locationItem markerGroup" value="Detention Story">Group 2: Detention Story</div>
+		    	<div className="locationItem markerGroup" value="3">Group 3</div>
+		    	<div className="locationItem markerGroup" value="4">Group 4</div>
+		    	<div className="locationItem markerGroup" value="5">Group 5</div>*/}
+
+			    {recordsArr && groupsArr.map((group) =>
+
+			    	<div className="locationItem markerGroup" value={group}>Narrative Group: {group}</div>
+
+
+			    	)}
+
+
+
 			    {recordsArr && recordsArr.map((record) =>
 				    	<div className="locationItem" onClick={function() { setCenter([record.latitude, record.longitude]); setZoom(zoom) }}>
 					    	<div className="locationItemInfo">
@@ -272,7 +391,6 @@ function Map() {
 						    		{record.notes}
 						    	</div>
 					    	</div>
-				    		
 				    	</div>
 			    	)
 				}
