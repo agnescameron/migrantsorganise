@@ -63,8 +63,6 @@ function Map() {
 			newMarkerForm(mapsMouseEvent, map, maps, places);
 		});
 
-		
-
 		// with array of places, 
 		let image = ""
 
@@ -93,6 +91,7 @@ function Map() {
 				icon: image,
 				display: false,
 				"group" : place.group,
+				"name" : place.name,
 			}));
 
 			// pushes latest place and description to array of infowindows
@@ -147,11 +146,23 @@ function Map() {
 				
 		})
 
+		$(".individualPlace").click(function() {
+			let place = $(this).attr("value")
+
+			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
+				
+				if (place == marker.name) {
+					setMarkerDisplay(marker, i)
+				}
+			})
+			updateMarkers()
+		})
+
 		// sets marker display true and false
 		const setMarkerDisplay = (marker, i) => {
 
 			marker.display = !marker.display // toggle display attr
-			console.log("set marker", i, "to", marker.display)
+			// console.log("set marker", i, "to", marker.display)
 
 			let clickedMarker = marker
 			let cloneMarkerDisplay = markers.slice() 
@@ -161,14 +172,14 @@ function Map() {
 			markers = cloneMarkerDisplay
 
 			setMarkerForm(false)
-			console.log("closed marker form")
+			// console.log("closed marker form")
 		}
 
 		// displays marker based on whether true or false
 		const updateMarkers = () => {
 			for (let i=0; i < markers.length; i++) {
 				if (markers[i].display == true) {
-					console.log("opened", i, markers[i].display)
+					console.log("opened", i, markers[i].display, markers[i].name)
 					infowindows[i].open(map, markers[i]);
 					setZoom(15) // PROBLEM -- this setzoom stops working after bounds change
 
@@ -356,7 +367,7 @@ function Map() {
 			    	)}
 
 			    {recordsArr && recordsArr.map((record, index) =>
-				    	<div className="locationItem" onClick={function() { setCenter([record.latitude, record.longitude]); setZoom(zoom) }}>
+				    	<div className="locationItem individualPlace" value={record.name} onClick={function() { setCenter([record.latitude, record.longitude]); setZoom(zoom) }}>
 					    	<div className="locationItemInfo">
 								<div className="locationItemName">
 						    		{record.name}
