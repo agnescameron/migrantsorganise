@@ -46,6 +46,7 @@ function Map() {
 	const [places, setPlaces] = useState([]);
 	const [latLng, setLatLng] = useState({});
 	const [markerForm, setMarkerForm] = useState(false);
+	const [mapClickable, setMapClickable] = useState(false);
 	const [center, setCenter] = useState(ORIGIN);
 	const [zoom, setZoom] = useState(15);
 
@@ -60,9 +61,22 @@ function Map() {
 		const infowindows = [];
 
 		// click listener to create new marker input form 
+		
 		map.addListener('click', (mapsMouseEvent) => {
-			newMarkerForm(mapsMouseEvent, map, maps, places);
+
+			mapClickable ? newMarkerForm(mapsMouseEvent, map, maps, places) : console.log("map off")
+
 		});
+
+
+
+		// $("#addLocation").click(function () {
+
+		// 	setMapClickable(true)
+		// 	console.log(mapClickable)
+
+			
+		// })
 
 		// with array of places, 
 		let image = ""
@@ -142,8 +156,6 @@ function Map() {
 		$(".narrativeGroup").click(function() {
 			let groupValue = $(this).attr("value")
 			let currentGroup = []
-
-			console.log("tick")
 
 			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
 
@@ -368,7 +380,7 @@ function Map() {
 						<input type="hidden" name="lat" value={latLng.lat()} />
 						<input type="hidden" name="lng" value={latLng.lng()} />
 						<input id="submitButton" type="submit" value="Add New Note to Map" />
-						<input id="closeFormButton" type="button" value="Close Form" onClick={function() {setMarkerForm(false)}} />
+						<input id="closeFormButton" type="button" value="Close Form" onClick={function() {setMarkerForm(false); setMapClickable(false)}} />
 					</form>
 				</div>
 			)}
@@ -386,16 +398,12 @@ function Map() {
 
 			<SearchBar />
 
-
 			<div className="narrativeGroupContainer">
-
-			{recordsArr && groupsArr.map((group) =>	
-
-		    	<div>
-			    	<div className="narrativeGroup navButton" value={group}>{group}</div>
-		    	</div>
-
-	    	)}
+				{recordsArr && groupsArr.map((group) =>	
+			    	<div>
+				    	<div className="narrativeGroup navButton" value={group}>{group}</div>
+			    	</div>
+		    	)}
 
 
 
@@ -411,9 +419,10 @@ function Map() {
 				<div className="narrativeGroup navButton" id="life">
 					Making Life Impossible
 				</div>*/}
+
 			</div>
 
-			<div className="navButton" id="addLocation">
+			<div className="navButton" id="addLocation" onClick={function() {setMapClickable(true); console.log(mapClickable)}}>
 				Add a Location, Memory or Sighting
 			</div>
 
@@ -428,7 +437,7 @@ function Map() {
 		 		Menu
 		 	</div>
 
-		    <div className="menuList">
+		    {/*<div className="menuList">
 
 			    {recordsArr && typesArr.map((type) =>
 				    
@@ -458,7 +467,7 @@ function Map() {
 				    	</div>
 			    	)
 				}
-			</div>
+			</div>*/}
 
 		</div>
 	);

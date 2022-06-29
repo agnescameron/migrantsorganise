@@ -1,5 +1,5 @@
 .App-header {
-	width: 70vw;
+	width: 100vw;
 }
 
 #markerFormContainer {
@@ -72,6 +72,7 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 }
 
 .menuList {
+	display: none;
 	width: 30vw;
 	height:  100vh;
 	position: fixed;
@@ -157,7 +158,11 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 }
 
 #toggleMap {
-
+	position: fixed;
+	top: 0;
+	right: 0;
+	padding-right: 10px;
+	z-index: 100;
 }
 
 
