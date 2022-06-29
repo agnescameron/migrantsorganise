@@ -139,9 +139,11 @@ function Map() {
 
 		let currentGroupMember = 0;
 
-		$(".markerGroup").click(function() {
+		$(".narrativeGroup").click(function() {
 			let groupValue = $(this).attr("value")
 			let currentGroup = []
+
+			console.log("tick")
 
 			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
 
@@ -386,7 +388,18 @@ function Map() {
 
 
 			<div className="narrativeGroupContainer">
-				<div className="narrativeGroup navButton" id="scams">
+
+			{recordsArr && groupsArr.map((group) =>	
+
+		    	<div>
+			    	<div className="narrativeGroup navButton" value={group}>{group}</div>
+		    	</div>
+
+	    	)}
+
+
+
+		{/*		<div className="narrativeGroup navButton" id="scams">
 					Scams
 				</div>
 				<div className="narrativeGroup navButton" id="control">
@@ -397,7 +410,7 @@ function Map() {
 				</div>
 				<div className="narrativeGroup navButton" id="life">
 					Making Life Impossible
-				</div>
+				</div>*/}
 			</div>
 
 			<div className="navButton" id="addLocation">
