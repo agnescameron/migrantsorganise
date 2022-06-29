@@ -120,6 +120,48 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 		background-color: red;
 	}
 
+.narrativeGroupContainer {
+	position: fixed;
+	top: 0;
+	left: 0;
+	padding-left: 10px;
+	height: 100vh;
+	width: 20vw;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: flex-start;
+	z-index: 100;
+}
+
+.narrativeGroup {
+}
+
+.navButton {
+	border: 3px black solid;
+	border-radius: 10px;
+	margin: 20px;
+}
+
+.navButton {
+	padding: 10px;
+	font-size: 1.5rem;
+	background-color: white;
+}
+
+#addLocation {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	padding-right: 10px;
+	z-index: 100;
+}
+
+#toggleMap {
+
+}
+
+
+
 /*Media Queries*/
 
 @media screen and (max-width: 800px) {

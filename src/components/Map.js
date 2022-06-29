@@ -17,7 +17,7 @@ import Airtable from 'airtable';
 
 // values
 const ORIGIN = [51.47563, -0.04]
-const id = "21fc52ecdc3f25ef"
+const id = "tblJiQgivlyOpMfIc"
 const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg');
 let recordsArr = [];
 let groupsArr = [];
@@ -275,7 +275,7 @@ function Map() {
 
 		console.log(' New marker: \n', "Name: ", name[0] + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
 
-		base('Table 1').create([
+		base('Locations V0').create([
 		  {
 			"fields": {
 			  "Location": name[0],
@@ -297,7 +297,7 @@ function Map() {
 
 	useEffect(() => {
 
-		base('Table 1').select({
+		base('Locations V0').select({
 			maxRecords: 1000,
 			view: "Grid view"
 		}).eachPage(function page(records, fetchNextPage) {
@@ -382,7 +382,33 @@ function Map() {
 				/> 
 			)}
 
-				<SearchBar />
+			<SearchBar />
+
+
+			<div className="narrativeGroupContainer">
+				<div className="narrativeGroup navButton" id="scams">
+					Scams
+				</div>
+				<div className="narrativeGroup navButton" id="control">
+					Control
+				</div>
+				<div className="narrativeGroup navButton" id="time">
+					Time and Uncertainty
+				</div>
+				<div className="narrativeGroup navButton" id="life">
+					Making Life Impossible
+				</div>
+			</div>
+
+			<div className="navButton" id="addLocation">
+				Add a Location, Memory or Sighting
+			</div>
+
+			<div className="navButton" id="toggleMap">
+				Toggle all map locations
+			</div>
+
+
 
 
 		 	<div className="showMenu">
