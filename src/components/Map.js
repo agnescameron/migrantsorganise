@@ -50,6 +50,8 @@ function Map() {
 	const [center, setCenter] = useState(ORIGIN);
 	const [zoom, setZoom] = useState(15);
 
+
+
 	// function for airtable API into loaded map 
 	// Refer to https://github.com/google-map-react/google-map-react#use-google-maps-api
 	const handleApiLoaded = (map, maps, places) => {
@@ -61,22 +63,26 @@ function Map() {
 		const infowindows = [];
 
 		// click listener to create new marker input form 
+
+		let mapclicker = false
+
+		$("#addLocation").click(function() {
+
+			mapclicker = !mapclicker
+
+			if(mapclicker == true) {
+				map.addListener('click', (mapsMouseEvent) => {
+					newMarkerForm(mapsMouseEvent, map, maps, places)
+					console.log("markerForm: ", markerForm)
+				});
+			} else {
+				// how to remove the listener now?
+			}
+			console.log("mapclicker: ", mapclicker)
+		})
+
 		
-		map.addListener('click', (mapsMouseEvent) => {
 
-			mapClickable ? newMarkerForm(mapsMouseEvent, map, maps, places) : console.log("map off")
-
-		});
-
-
-
-		// $("#addLocation").click(function () {
-
-		// 	setMapClickable(true)
-		// 	console.log(mapClickable)
-
-			
-		// })
 
 		// with array of places, 
 		let image = ""
@@ -238,6 +244,11 @@ function Map() {
 		}
 	}
 
+	const toggleMapClickable = () => {
+		!mapClickable ? setMapClickable(true) : console.log("map: ", mapClickable)
+	}
+
+
 	// ******************* interactions with markers ********************** //
 
 	const newMarkerForm = (evt, map, maps, places) => {
@@ -380,7 +391,7 @@ function Map() {
 						<input type="hidden" name="lat" value={latLng.lat()} />
 						<input type="hidden" name="lng" value={latLng.lng()} />
 						<input id="submitButton" type="submit" value="Add New Note to Map" />
-						<input id="closeFormButton" type="button" value="Close Form" onClick={function() {setMarkerForm(false); setMapClickable(false)}} />
+						<input id="closeFormButton" type="button" value="Close Form" onClick={function() {setMarkerForm(false)}} />
 					</form>
 				</div>
 			)}
@@ -422,7 +433,7 @@ function Map() {
 
 			</div>
 
-			<div className="navButton" id="addLocation" onClick={function() {setMapClickable(true); console.log(mapClickable)}}>
+			<div className="navButton" id="addLocation">
 				Add a Location, Memory or Sighting
 			</div>
 
