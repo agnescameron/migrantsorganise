@@ -1,6 +1,6 @@
 import React from 'react';
 import isEmpty from 'lodash.isempty';
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import $ from 'jquery';
 
 
@@ -70,7 +70,7 @@ function Map() {
 
 			mapclicker = !mapclicker
 
-			if(mapclicker == true) {
+			if(mapclicker === true) {
 				map.addListener('click', (mapsMouseEvent) => {
 					newMarkerForm(mapsMouseEvent, map, maps, places)
 					console.log("markerForm: ", markerForm)
@@ -87,18 +87,25 @@ function Map() {
 		// with array of places, 
 		let image = ""
 
+
 		places.forEach(place => {
 
 			// choose icon to render based on type
-			if (place.type == "A Hopeful Experience") {
-				image = Daffodil
-			} else if (place.type == "A Memory") {
-				image = Speech
-			} else if (place.type == "Home Office/Hostile Environment Location") {
-				image = HomeOffice
-			} else if (place.type == "A Place of Support") {
-				image = Support
-			} else {
+			if( Array.isArray(place.type) ){
+				if ( place.type.includes("A Hopeful Experience") ) {
+					image = Daffodil
+				} else if ( place.type.includes("A Memory") ) {
+					image = Speech
+				} else if ( place.type.includes("Home Office/Hostile Environment Location") ) {
+					image = HomeOffice
+				} else if ( place.type.includes("A Place of Support") ) {
+					image = Support
+				}
+				else {
+					image = null
+				}
+			}
+			else {
 				image = null
 			}
 
@@ -113,6 +120,7 @@ function Map() {
 				display: false,
 				"group" : place.group,
 				"name" : place.name,
+				"key": place.id
 			}));
 
 			// pushes latest place and description to array of infowindows
@@ -130,7 +138,7 @@ function Map() {
 
 				let type = $(this).attr("value")
 				console.log("found type as", type)
-				if( place.type == type ) {
+				if( place.type === type ) {
 					markers.push(new maps.Marker({
 						position: {
 							lat: place.latitude,
@@ -141,7 +149,7 @@ function Map() {
 							display: false,
 							"group" : place.group,
 							"name" : place.name,
-						}));				
+						}));
 
 					}
 				})
@@ -165,7 +173,7 @@ function Map() {
 
 			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
 
-				if (marker.group == groupValue) {
+				if (marker.group === groupValue) {
 					currentGroup.push(marker) // make a currentGroup array containing all the ones to cycle through
 					console.log("markergroup: ", marker.group[0], "groupValue: ", groupValue)
 				} else {
@@ -193,7 +201,7 @@ function Map() {
 
 			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
 				
-				if (place == marker.name) {
+				if (place === marker.name) {
 					setMarkerDisplay(marker, i)
 				}
 			})
@@ -220,7 +228,7 @@ function Map() {
 		// displays marker based on whether true or false
 		const updateMarkers = () => {
 			for (let i=0; i < markers.length; i++) {
-				if (markers[i].display == true) {
+				if (markers[i].display === true) {
 					console.log("opened", i, markers[i].display, markers[i].name)
 					infowindows[i].open(map, markers[i]);
 					setZoom(15) // PROBLEM -- this setzoom stops working after bounds change
@@ -231,7 +239,7 @@ function Map() {
 				//   }
 				// });
 
-				} else if (markers[i].display == false) {
+				} else if (markers[i].display === false) {
 					infowindows[i].close(map, markers[i])
 				}
 			}
@@ -283,14 +291,14 @@ function Map() {
 		// make array of checked attributes
 		let attributes = []
 		evt.target.type.forEach( (check, i) => {
-			if (check.checked == true) {
+			if (check.checked === true) {
 				attributes.push(check.value)
 			}
 		})
 
 		var name = ""
 		
-		if(evt.target.placename.value != "") {
+		if(evt.target.placename.value !== "") {
 			name = evt.target.placename.value
 			console.log("awww", name)
 		} else {
@@ -341,7 +349,7 @@ function Map() {
 
 			// make an array of new groups
 			let group = record.get('Group')
-			if ( group != undefined && groupsArr.includes(group[0]) == false) {
+			if ( group !== undefined && groupsArr.includes(group[0]) === false) {
 				groupsArr.push(group[0])
 				console.log("found new group called ", group)
 				console.log(groupsArr.includes(group))
@@ -349,7 +357,7 @@ function Map() {
 
 			// make an array of new types
 			let type = record.get('Type')
-			if ( type != undefined && typesArr.includes(type[0]) == false) {
+			if ( type !== undefined && typesArr.includes(type[0]) === false) {
 				typesArr.push(type[0])
 				console.log("found new group called ", type)
 				console.log(typesArr.includes(type))

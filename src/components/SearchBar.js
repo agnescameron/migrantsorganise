@@ -10,7 +10,6 @@ import Cross from '../img/Cross.png'; // Tell webpack this JS file uses this ima
 
 import "./Map.css"
 import GoogleMap from './GoogleMap';
-import Airtable from 'airtable';
 
 
 function SearchBar() {
@@ -32,7 +31,7 @@ function SearchBar() {
 	  searchBox.addListener("places_changed", () => {
 	    const places = searchBox.getPlaces();
 
-	    if (places.length == 0) {
+	    if (places.length === 0) {
 	      return;
 	    }
 
