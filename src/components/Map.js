@@ -1,6 +1,6 @@
 import React from 'react';
 import isEmpty from 'lodash.isempty';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import $ from 'jquery';
 
 
@@ -49,6 +49,7 @@ function Map() {
 	const [mapClickable, setMapClickable] = useState(false);
 	const [center, setCenter] = useState(ORIGIN);
 	const [zoom, setZoom] = useState(15);
+	const clickRef = React.useRef(mapClickable);
 
 
 
@@ -62,31 +63,14 @@ function Map() {
 		let markers = [];
 		const infowindows = [];
 
-		// click listener to create new marker input form 
-
-		let mapclicker = false
-
-		$("#addLocation").click(function() {
-
-			mapclicker = !mapclicker
-
-			if(mapclicker === true) {
-				map.addListener('click', (mapsMouseEvent) => {
-					newMarkerForm(mapsMouseEvent, map, maps, places)
-					console.log("markerForm: ", markerForm)
-				});
-			} else {
-				// how to remove the listener now?
-			}
-			console.log("mapclicker: ", mapclicker)
-		})
-
-		
-
+		// click listener to create new marker input form
+		map.addListener('click', (mapsMouseEvent) => {
+			console.log('clickref', clickRef.current)
+			handleMarkerForm(mapsMouseEvent, map, maps, places)
+		});
 
 		// with array of places, 
 		let image = ""
-
 
 		places.forEach(place => {
 
@@ -253,20 +237,24 @@ function Map() {
 	}
 
 	const toggleMapClickable = () => {
-		!mapClickable ? setMapClickable(true) : console.log("map: ", mapClickable)
+		console.log('toggling map state')
+		!mapClickable ? setMapClickable(true) : setMapClickable(false)
+		clickRef.current = mapClickable
+		console.log("map: ", mapClickable)
 	}
 
 
 	// ******************* interactions with markers ********************** //
 
-	const newMarkerForm = (evt, map, maps, places) => {
+	const handleMarkerForm = (evt, map, maps, places) => {
 
 		// closeLastMarker(lastOpened[lastOpened.length - 1])
-
 		setLatLng(evt.latLng)
 
 		// If no marker form the open it, otherwise print markerForm boolean status
-		!markerForm ? setMarkerForm(true) : console.log("markerForm: ", markerForm)
+		mapClickable && !markerForm ? setMarkerForm(true) : setMarkerForm(false)
+
+		console.log("markerForm: ", markerForm)
 
 		// make a temp Marker with current clicked position
 		const tempMarker = new maps.Marker({
@@ -441,7 +429,7 @@ function Map() {
 
 			</div>
 
-			<div className="navButton" id="addLocation">
+			<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
 				Add a Location, Memory or Sighting
 			</div>
 
