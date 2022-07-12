@@ -56,7 +56,7 @@ function Map() {
 	// function for airtable API into loaded map 
 	// Refer to https://github.com/google-map-react/google-map-react#use-google-maps-api
 	const handleApiLoaded = (map, maps, places) => {
-
+		console.log('handling api')
 	// ******************** populate markers and infowindows ****************** //
 		
 		// array of markers and info windows
@@ -65,8 +65,7 @@ function Map() {
 
 		// click listener to create new marker input form
 		map.addListener('click', (mapsMouseEvent) => {
-			console.log('clickref', clickRef.current)
-			handleMarkerForm(mapsMouseEvent, map, maps, places)
+			if(clickRef.current) handleMarkerForm(mapsMouseEvent, map, maps, places)
 		});
 
 		// with array of places, 
@@ -194,6 +193,7 @@ function Map() {
 
 		// sets marker display true and false
 		const setMarkerDisplay = (marker, i) => {
+			console.log('setting marker display')
 
 			marker.display = !marker.display // toggle display attr
 			// console.log("set marker", i, "to", marker.display)
@@ -211,17 +211,12 @@ function Map() {
 
 		// displays marker based on whether true or false
 		const updateMarkers = () => {
+			console.log('updating markers')
 			for (let i=0; i < markers.length; i++) {
 				if (markers[i].display === true) {
 					console.log("opened", i, markers[i].display, markers[i].name)
 					infowindows[i].open(map, markers[i]);
 					setZoom(15) // PROBLEM -- this setzoom stops working after bounds change
-
-				// map.addListener('bounds_changed', function(event) {
-				//   if (this.getZoom() < 15) {
-				//     this.setZoom(15);
-				//   }
-				// });
 
 				} else if (markers[i].display === false) {
 					infowindows[i].close(map, markers[i])
@@ -237,10 +232,11 @@ function Map() {
 	}
 
 	const toggleMapClickable = () => {
-		console.log('toggling map state')
-		!mapClickable ? setMapClickable(true) : setMapClickable(false)
-		clickRef.current = mapClickable
-		console.log("map: ", mapClickable)
+		if (mapClickable) {
+			setMarkerForm(false);
+		}
+		clickRef.current = !mapClickable
+		setMapClickable(!mapClickable)
 	}
 
 
@@ -252,9 +248,7 @@ function Map() {
 		setLatLng(evt.latLng)
 
 		// If no marker form the open it, otherwise print markerForm boolean status
-		mapClickable && !markerForm ? setMarkerForm(true) : setMarkerForm(false)
-
-		console.log("markerForm: ", markerForm)
+		!markerForm ? setMarkerForm(true) : console.log('marker form', markerForm)
 
 		// make a temp Marker with current clicked position
 		const tempMarker = new maps.Marker({
@@ -262,9 +256,9 @@ function Map() {
 				map,
 			})
 
-		console.log("temp marker: ", tempMarker)
-
+		// this is a problem as a new listener gets added every time without ever being removed
 		map.addListener('click', (mapsMouseEvent) => {
+			console.log('setting null')
 			tempMarker.setMap(null)
 		});
 	}
@@ -376,13 +370,13 @@ function Map() {
 						<textarea id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"></textarea>
 
 						<span><input type="radio" id="hope" name="type" value="A Hopeful Experience" />
-  						<label for="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
+  						<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
   						<span><input type="radio" id="support" name="type" value="A Place of Support" />
-  						<label for="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
+  						<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
   						<span><input type="radio" id="memory" name="type" value="A Memory" />
-  						<label for="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
+  						<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
   						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
-  						<label for="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
+  						<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
 
 						<input type="hidden" name="lat" value={latLng.lat()} />
 						<input type="hidden" name="lng" value={latLng.lng()} />
@@ -430,7 +424,7 @@ function Map() {
 			</div>
 
 			<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
-				Add a Location, Memory or Sighting
+				{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
 			</div>
 
 			<div className="navButton" id="toggleMap">
