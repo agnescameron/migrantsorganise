@@ -1,6 +1,6 @@
 import React from 'react';
 import isEmpty from 'lodash.isempty';
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import $ from 'jquery';
 
 
@@ -49,40 +49,24 @@ function Map() {
 	const [mapClickable, setMapClickable] = useState(false);
 	const [center, setCenter] = useState(ORIGIN);
 	const [zoom, setZoom] = useState(15);
+	const clickRef = React.useRef(mapClickable);
 
 
 
 	// function for airtable API into loaded map 
 	// Refer to https://github.com/google-map-react/google-map-react#use-google-maps-api
 	const handleApiLoaded = (map, maps, places) => {
-
+		console.log('handling api')
 	// ******************** populate markers and infowindows ****************** //
 		
 		// array of markers and info windows
 		let markers = [];
 		const infowindows = [];
 
-		// click listener to create new marker input form 
-
-		let mapclicker = false
-
-		$("#addLocation").click(function() {
-
-			mapclicker = !mapclicker
-
-			if(mapclicker == true) {
-				map.addListener('click', (mapsMouseEvent) => {
-					newMarkerForm(mapsMouseEvent, map, maps, places)
-					console.log("markerForm: ", markerForm)
-				});
-			} else {
-				// how to remove the listener now?
-			}
-			console.log("mapclicker: ", mapclicker)
-		})
-
-		
-
+		// click listener to create new marker input form
+		map.addListener('click', (mapsMouseEvent) => {
+			if(clickRef.current) handleMarkerForm(mapsMouseEvent, map, maps, places)
+		});
 
 		// with array of places, 
 		let image = ""
@@ -90,15 +74,21 @@ function Map() {
 		places.forEach(place => {
 
 			// choose icon to render based on type
-			if (place.type == "A Hopeful Experience") {
-				image = Daffodil
-			} else if (place.type == "A Memory") {
-				image = Speech
-			} else if (place.type == "Home Office/Hostile Environment Location") {
-				image = HomeOffice
-			} else if (place.type == "A Place of Support") {
-				image = Support
-			} else {
+			if( Array.isArray(place.type) ){
+				if ( place.type.includes("A Hopeful Experience") ) {
+					image = Daffodil
+				} else if ( place.type.includes("A Memory") ) {
+					image = Speech
+				} else if ( place.type.includes("Home Office/Hostile Environment Location") ) {
+					image = HomeOffice
+				} else if ( place.type.includes("A Place of Support") ) {
+					image = Support
+				}
+				else {
+					image = null
+				}
+			}
+			else {
 				image = null
 			}
 
@@ -113,6 +103,7 @@ function Map() {
 				display: false,
 				"group" : place.group,
 				"name" : place.name,
+				"key": place.id
 			}));
 
 			// pushes latest place and description to array of infowindows
@@ -130,7 +121,7 @@ function Map() {
 
 				let type = $(this).attr("value")
 				console.log("found type as", type)
-				if( place.type == type ) {
+				if( place.type === type ) {
 					markers.push(new maps.Marker({
 						position: {
 							lat: place.latitude,
@@ -141,7 +132,7 @@ function Map() {
 							display: false,
 							"group" : place.group,
 							"name" : place.name,
-						}));				
+						}));
 
 					}
 				})
@@ -165,7 +156,7 @@ function Map() {
 
 			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
 
-				if (marker.group == groupValue) {
+				if (marker.group === groupValue) {
 					currentGroup.push(marker) // make a currentGroup array containing all the ones to cycle through
 					console.log("markergroup: ", marker.group[0], "groupValue: ", groupValue)
 				} else {
@@ -193,7 +184,7 @@ function Map() {
 
 			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
 				
-				if (place == marker.name) {
+				if (place === marker.name) {
 					setMarkerDisplay(marker, i)
 				}
 			})
@@ -202,6 +193,7 @@ function Map() {
 
 		// sets marker display true and false
 		const setMarkerDisplay = (marker, i) => {
+			console.log('setting marker display')
 
 			marker.display = !marker.display // toggle display attr
 			// console.log("set marker", i, "to", marker.display)
@@ -219,19 +211,14 @@ function Map() {
 
 		// displays marker based on whether true or false
 		const updateMarkers = () => {
+			console.log('updating markers')
 			for (let i=0; i < markers.length; i++) {
-				if (markers[i].display == true) {
+				if (markers[i].display === true) {
 					console.log("opened", i, markers[i].display, markers[i].name)
 					infowindows[i].open(map, markers[i]);
 					setZoom(15) // PROBLEM -- this setzoom stops working after bounds change
 
-				// map.addListener('bounds_changed', function(event) {
-				//   if (this.getZoom() < 15) {
-				//     this.setZoom(15);
-				//   }
-				// });
-
-				} else if (markers[i].display == false) {
+				} else if (markers[i].display === false) {
 					infowindows[i].close(map, markers[i])
 				}
 			}
@@ -245,20 +232,23 @@ function Map() {
 	}
 
 	const toggleMapClickable = () => {
-		!mapClickable ? setMapClickable(true) : console.log("map: ", mapClickable)
+		if (mapClickable) {
+			setMarkerForm(false);
+		}
+		clickRef.current = !mapClickable
+		setMapClickable(!mapClickable)
 	}
 
 
 	// ******************* interactions with markers ********************** //
 
-	const newMarkerForm = (evt, map, maps, places) => {
+	const handleMarkerForm = (evt, map, maps, places) => {
 
 		// closeLastMarker(lastOpened[lastOpened.length - 1])
-
 		setLatLng(evt.latLng)
 
 		// If no marker form the open it, otherwise print markerForm boolean status
-		!markerForm ? setMarkerForm(true) : console.log("markerForm: ", markerForm)
+		!markerForm ? setMarkerForm(true) : console.log('marker form', markerForm)
 
 		// make a temp Marker with current clicked position
 		const tempMarker = new maps.Marker({
@@ -266,9 +256,9 @@ function Map() {
 				map,
 			})
 
-		console.log("temp marker: ", tempMarker)
-
+		// this is a problem as a new listener gets added every time without ever being removed
 		map.addListener('click', (mapsMouseEvent) => {
+			console.log('setting null')
 			tempMarker.setMap(null)
 		});
 	}
@@ -283,14 +273,14 @@ function Map() {
 		// make array of checked attributes
 		let attributes = []
 		evt.target.type.forEach( (check, i) => {
-			if (check.checked == true) {
+			if (check.checked === true) {
 				attributes.push(check.value)
 			}
 		})
 
 		var name = ""
 		
-		if(evt.target.placename.value != "") {
+		if(evt.target.placename.value !== "") {
 			name = evt.target.placename.value
 			console.log("awww", name)
 		} else {
@@ -341,7 +331,7 @@ function Map() {
 
 			// make an array of new groups
 			let group = record.get('Group')
-			if ( group != undefined && groupsArr.includes(group[0]) == false) {
+			if ( group !== undefined && groupsArr.includes(group[0]) === false) {
 				groupsArr.push(group[0])
 				console.log("found new group called ", group)
 				console.log(groupsArr.includes(group))
@@ -349,7 +339,7 @@ function Map() {
 
 			// make an array of new types
 			let type = record.get('Type')
-			if ( type != undefined && typesArr.includes(type[0]) == false) {
+			if ( type !== undefined && typesArr.includes(type[0]) === false) {
 				typesArr.push(type[0])
 				console.log("found new group called ", type)
 				console.log(typesArr.includes(type))
@@ -380,13 +370,13 @@ function Map() {
 						<textarea id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"></textarea>
 
 						<span><input type="radio" id="hope" name="type" value="A Hopeful Experience" />
-  						<label for="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
+  						<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
   						<span><input type="radio" id="support" name="type" value="A Place of Support" />
-  						<label for="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
+  						<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
   						<span><input type="radio" id="memory" name="type" value="A Memory" />
-  						<label for="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
+  						<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
   						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
-  						<label for="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
+  						<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
 
 						<input type="hidden" name="lat" value={latLng.lat()} />
 						<input type="hidden" name="lng" value={latLng.lng()} />
@@ -433,8 +423,8 @@ function Map() {
 
 			</div>
 
-			<div className="navButton" id="addLocation">
-				Add a Location, Memory or Sighting
+			<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
+				{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
 			</div>
 
 			<div className="navButton" id="toggleMap">
