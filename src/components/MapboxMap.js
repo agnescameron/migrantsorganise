@@ -5,21 +5,23 @@ mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
 
-export default function Map() {
+const Map = ({ locations }) => {
 	const mapContainer = useRef(null);
 	const map = useRef(null);
-	const [lng, setLng] = useState(-70.9);
-	const [lat, setLat] = useState(42.35);
-	const [zoom, setZoom] = useState(9);
+	const [lng, setLng] = useState(-0.04);
+	const [lat, setLat] = useState(51.47563);
+	const [places, setPlaces] = useState([]);
+	const [mapClickable, setMapClickable] = useState(false);
+	const [zoom, setZoom] = useState(10);
 	 
 	useEffect(() => {
-	if (map.current) return; // initialize map only once
-	map.current = new mapboxgl.Map({
-		container: mapContainer.current,
-		style: 'mapbox://styles/mapbox/streets-v11',
-		center: [lng, lat],
-		zoom: zoom
-	});
+		if (map.current) return; // initialize map only once
+		map.current = new mapboxgl.Map({
+			container: mapContainer.current,
+			style: 'mapbox://styles/mapbox/streets-v11',
+			center: [lng, lat],
+			zoom: zoom
+		});
 	});
 	 
 	useEffect(() => {
@@ -30,7 +32,7 @@ export default function Map() {
 			setZoom(map.current.getZoom().toFixed(2));
 		});
 	});
-	 
+	
 	return (
 	<div>
 	<div className="sidebar">
@@ -40,3 +42,5 @@ export default function Map() {
 	</div>
 	);
 }
+
+export default Map;
