@@ -155,8 +155,7 @@ function Map() {
 			let currentGroup = []
 
 			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
-
-				if (marker.group === groupValue) {
+				if (groupValue.includes(marker.group)) {
 					currentGroup.push(marker) // make a currentGroup array containing all the ones to cycle through
 					console.log("markergroup: ", marker.group[0], "groupValue: ", groupValue)
 				} else {
