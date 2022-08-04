@@ -1,6 +1,7 @@
 // import './App.css';
 import React, { useState, useEffect, useRef } from 'react';
 import Map from './components/MapboxMap.js';
+import { MapProvider } from "./hooks/MapHooks.js";
 
 function App() {
 	const airtableDataRef = useRef([])
@@ -55,11 +56,9 @@ function App() {
 
 	return (
 		<div className="App">
-			<header className="App-header">
-			
-				{entries.length > 0 ? <Map locations={entries}/> : <div className='loading'>Loading map...</div>}
-
-			</header>
+			<header className="App-header">			</header>
+				{entries.length > 0 ? <MapProvider><Map locations={entries}/></MapProvider> : 
+					<div className='loading'>Loading map...</div>}
 		</div>
 	);
 
