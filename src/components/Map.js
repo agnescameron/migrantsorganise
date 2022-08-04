@@ -17,8 +17,8 @@ import Airtable from 'airtable';
 
 // values
 const ORIGIN = [51.47563, -0.04]
-const id = "tblJiQgivlyOpMfIc"
-const base = new Airtable({apiKey: 'keyz2t9LWEHzBGzLy'}).base('apprhdoJVORTEvqLg');
+const id = process.env.REACT_APP_AIRTABLE_TABLE
+const base = new Airtable({apiKey: process.env.REACT_APP_AIRTABLE_KEY}).base(process.env.REACT_APP_AIRTABLE_BASE);
 let recordsArr = [];
 let groupsArr = [];
 let typesArr = [];
