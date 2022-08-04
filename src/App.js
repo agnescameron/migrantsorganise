@@ -1,5 +1,5 @@
 // import './App.css';
-import Map from './components/Map.js';
+import Map from './components/MapboxMap.js';
 
 
 
