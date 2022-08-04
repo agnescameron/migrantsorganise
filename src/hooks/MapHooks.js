@@ -3,8 +3,19 @@ import React, { createContext, useContext, useReducer } from "react";
 const MapStateContext = createContext();
 const MapDispatchContext = createContext();
 
-export const MapProvider = ({ children }) => {
-	const [state, dispatch] = useReducer(MapReducer, { markers: [] });
+export const MapProvider = ({ children, locations }) => {
+	const markers = []
+	for (const location of locations) {
+		markers.push({
+			'lng': location.fields.Longitude, 
+			'lat': location.fields.Latitude,
+			'icon': 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png',
+			'notes': location.fields.Notes,
+			'name': location.fields.Name,
+			'types': location.fields.Type,
+			 })
+	}
+	const [state, dispatch] = useReducer(MapReducer, { markers: markers });
 	return (
 		<MapStateContext.Provider value={state}>
 			<MapDispatchContext.Provider value={dispatch}>

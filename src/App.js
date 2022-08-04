@@ -57,7 +57,7 @@ function App() {
 	return (
 		<div className="App">
 			<header className="App-header">			</header>
-				{entries.length > 0 ? <MapProvider><Map locations={entries}/></MapProvider> : 
+				{entries.length > 0 ? <MapProvider locations={entries}><Map/></MapProvider> : 
 					<div className='loading'>Loading map...</div>}
 		</div>
 	);
