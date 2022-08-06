@@ -11,7 +11,7 @@ export const MapProvider = ({ children, locations }) => {
 			'lat': location.fields.Latitude,
 			'icon': 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png',
 			'notes': location.fields.Notes,
-			'name': location.fields.Name,
+			'name': location.fields.Location,
 			'types': location.fields.Type,
 			'group': location.fields.Group,
 			 })
