@@ -1,273 +1,61 @@
-import React from 'react';
-import isEmpty from 'lodash.isempty';
-import { useState, useEffect, useRef, useCallback } from "react";
-import $ from 'jquery';
-
-
-import Daffodil from '../img/Daffodil.png'; // Tell webpack this JS file uses this image
-import Speech from '../img/Speech.png'; // Tell webpack this JS file uses this image
-import HomeOffice from '../img/HomeOffice.png'; // Tell webpack this JS file uses this image
-import Support from '../img/Support.png'; // Tell webpack this JS file uses this image
-import Cross from '../img/Cross.png'; // Tell webpack this JS file uses this image
-
-import "./Map.css"
-import SearchBar from './SearchBar'
-import GoogleMap from './GoogleMap';
+import React, { useRef, useEffect, useState } from 'react';
+import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import { useDispatchMap, useStateMap } from "../hooks/MapHooks.js";
+import { Markers } from "./Markers.js";
 import Airtable from 'airtable';
+import ReactMapGL from "react-map-gl";
+import 'mapbox-gl/dist/mapbox-gl.css';
+import "./Map.css"
 
-// values
-const ORIGIN = [51.47563, -0.04]
-const id = process.env.REACT_APP_AIRTABLE_TABLE
+const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
 const base = new Airtable({apiKey: process.env.REACT_APP_AIRTABLE_KEY}).base(process.env.REACT_APP_AIRTABLE_BASE);
-let recordsArr = [];
-let groupsArr = [];
-let typesArr = [];
 
-// rendering infoWindow
-const getInfoWindowString = (place) => `
-	<div class="infoWindows">
-	  <div class="infoWindowName">
-		${place.name}
-	  </div>
-  	  <div class="infoWindowNotes">
-		${place.notes}
-	  </div>
-	</div>`;
-
-// manages last opened info dialogue
-let lastOpened = []
-let markerDisplay = []
-
-// ****************************************** main Map function ************************************************* //
-
-function Map() {
-
-	// State variables to store
-	const [places, setPlaces] = useState([]);
-	const [latLng, setLatLng] = useState({});
-	const [markerForm, setMarkerForm] = useState(false);
+const Map = () => {
+	const mapContainer = useRef(null);
+	const map = useRef(null);
+	const [lng, setLng] = useState(-0.04);
+	const [lat, setLat] = useState(51.47563);
 	const [mapClickable, setMapClickable] = useState(false);
-	const [center, setCenter] = useState(ORIGIN);
-	const [zoom, setZoom] = useState(15);
-	const clickRef = React.useRef(mapClickable);
+	const [markerForm, setMarkerForm] = useState(false);
+	const [zoom, setZoom] = useState(10);
+	const mapDispatch = useDispatchMap();
+	const { markers, origMarkers } = useStateMap();
 
-
-
-	// function for airtable API into loaded map 
-	// Refer to https://github.com/google-map-react/google-map-react#use-google-maps-api
-	const handleApiLoaded = (map, maps, places) => {
-		console.log('handling api')
-	// ******************** populate markers and infowindows ****************** //
-		
-		// array of markers and info windows
-		let markers = [];
-		const infowindows = [];
-
-		// click listener to create new marker input form
-		map.addListener('click', (mapsMouseEvent) => {
-			if(clickRef.current) handleMarkerForm(mapsMouseEvent, map, maps, places)
-		});
-
-		// with array of places, 
-		let image = ""
-
-		places.forEach(place => {
-
-			// choose icon to render based on type
-			if( Array.isArray(place.type) ){
-				if ( place.type.includes("A Hopeful Experience") ) {
-					image = Daffodil
-				} else if ( place.type.includes("A Memory") ) {
-					image = Speech
-				} else if ( place.type.includes("Home Office/Hostile Environment Location") ) {
-					image = HomeOffice
-				} else if ( place.type.includes("A Place of Support") ) {
-					image = Support
-				}
-				else {
-					image = null
-				}
-			}
-			else {
-				image = null
-			}
-
-			// push latest latlng/icon to a google.maps.marker object -- the displayed marker and its corresponding infowindow are independent 
-			markers.push(new maps.Marker({
-			position: {
-				lat: place.latitude,
-				lng: place.longitude,
-			},
-				map,
-				icon: image,
-				display: false,
-				"group" : place.group,
-				"name" : place.name,
-				"key": place.id
-			}));
-
-			// pushes latest place and description to array of infowindows
-			infowindows.push(new maps.InfoWindow({
-				content: getInfoWindowString(place),
-			}));
-
-			// console.log("pushing infowindows to ", infowindows)
-			// console.log("pushing markers to ", markers)
-
-						// filtering
-
-
-			$(".filterButton").click(function() {
-
-				let type = $(this).attr("value")
-				console.log("found type as", type)
-				if( place.type === type ) {
-					markers.push(new maps.Marker({
-						position: {
-							lat: place.latitude,
-							lng: place.longitude,
-						},
-							map,
-							icon: image,
-							display: false,
-							"group" : place.group,
-							"name" : place.name,
-						}));
-
-					}
-				})
-
-		});
-
-		// click listener to display marker
-		markers.forEach((marker, i) => {
-			marker.addListener('click', () => {
-				setMarkerDisplay(marker, i)
-				updateMarkers()
-			});
-
-		});
-
-		let currentGroupMember = 0;
-
-		$(".narrativeGroup").click(function() {
-			let groupValue = $(this).attr("value")
-			let currentGroup = []
-
-			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
-				if (groupValue.includes(marker.group)) {
-					currentGroup.push(marker) // make a currentGroup array containing all the ones to cycle through
-					console.log("markergroup: ", marker.group[0], "groupValue: ", groupValue)
-				} else {
-					marker.display = false
-				}
-			})
-
-			let len = currentGroup.length
-			// console.log(len, currentGroupMember)
-
-			if (currentGroupMember < len) {
-				resetMarkers()
-				currentGroup[currentGroupMember].display = true
-				currentGroupMember++
-			} else {
-				resetMarkers()
-				currentGroupMember = 0
-				currentGroup[currentGroupMember].display = true
-			}
-			updateMarkers()
-		})
-
-		$(".individualPlace").click(function() {
-			let place = $(this).attr("value")
-
-			markers.forEach((marker, i) => { // goes thru all the markers to filter out the corresponding group ones
-				
-				if (place === marker.name) {
-					setMarkerDisplay(marker, i)
-				}
-			})
-			updateMarkers()
-		})
-
-		// sets marker display true and false
-		const setMarkerDisplay = (marker, i) => {
-			console.log('setting marker display')
-
-			marker.display = !marker.display // toggle display attr
-			// console.log("set marker", i, "to", marker.display)
-
-			let clickedMarker = marker
-			let cloneMarkerDisplay = markers.slice() 
-			cloneMarkerDisplay.splice(i, 1)
-			cloneMarkerDisplay.forEach((cloneMarker, j) => { cloneMarker.display = false})
-			cloneMarkerDisplay.splice(i, 0, clickedMarker)
-			markers = cloneMarkerDisplay
-
-			setMarkerForm(false)
-			// console.log("closed marker form")
-		}
-
-		// displays marker based on whether true or false
-		const updateMarkers = () => {
-			console.log('updating markers')
-			for (let i=0; i < markers.length; i++) {
-				if (markers[i].display === true) {
-					console.log("opened", i, markers[i].display, markers[i].name)
-					infowindows[i].open(map, markers[i]);
-					setZoom(15) // PROBLEM -- this setzoom stops working after bounds change
-
-				} else if (markers[i].display === false) {
-					infowindows[i].close(map, markers[i])
-				}
-			}
-		}
-
-		const resetMarkers = () => {
-			for (let i=0; i < markers.length; i++) {
-				markers[i].display = false
-			}
-		}
-	}
+	const [mapViewport, setMapViewport] = useState({
+		height: "100vh",
+		width: "100wh",
+		longitude: lng,
+		latitude: lat,
+		zoom: zoom
+	});
 
 	const toggleMapClickable = () => {
 		if (mapClickable) {
 			setMarkerForm(false);
+			mapDispatch({ type: "RESET"});
 		}
-		clickRef.current = !mapClickable
+
 		setMapClickable(!mapClickable)
 	}
 
-
-	// ******************* interactions with markers ********************** //
-
-	const handleMarkerForm = (evt, map, maps, places) => {
-
-		// closeLastMarker(lastOpened[lastOpened.length - 1])
-		setLatLng(evt.latLng)
-
-		// If no marker form the open it, otherwise print markerForm boolean status
-		!markerForm ? setMarkerForm(true) : console.log('marker form', markerForm)
-
-		// make a temp Marker with current clicked position
-		const tempMarker = new maps.Marker({
-				position: evt.latLng,
-				map,
-			})
-
-		// this is a problem as a new listener gets added every time without ever being removed
-		map.addListener('click', (mapsMouseEvent) => {
-			console.log('setting null')
-			tempMarker.setMap(null)
-		});
+	const showNarrative = (evt) => {
+		evt.preventDefault()
+		const group = evt.target.innerText;
+		const markerGroup = origMarkers.filter(marker => marker.group !== undefined && marker.group.includes(group) )
+		mapDispatch({ type: "MARKER_SUBGROUP", payload:{
+			markers: markerGroup
+		}})
 	}
-
-	// ******************* creating markers into airtable ********************** //
 
 
 	// new marker submission to airtable on form submit
 	const createMarker = (evt) => {
 		evt.preventDefault()
+
+		if(evt.target.placename.value == "") {
+			alert("site must have a name")
+			return;
+		}
 
 		// make array of checked attributes
 		let attributes = []
@@ -277,91 +65,60 @@ function Map() {
 			}
 		})
 
-		var name = ""
-		
-		if(evt.target.placename.value !== "") {
-			name = evt.target.placename.value
-			console.log("awww", name)
-		} else {
-			name = attributes
-			console.log("whyyy", name[0], evt.target.placename.value, attributes)
-		}
-
-		console.log(' New marker: \n', "Name: ", name[0] + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
-
 		base('Locations V0').create([
-		  {
-			"fields": {
-			  "Location": name[0],
-			  "Notes": evt.target.notes.value,
-			  "Latitude": parseFloat(evt.target.lat.value),
-			  "Longitude": parseFloat(evt.target.lng.value),
-			  "Type": attributes,
-			}
-		  },
+			{
+				"fields": {
+					"Location": evt.target.placename.value,
+					"Notes": evt.target.notes.value,
+					"Latitude": parseFloat(evt.target.lat.value),
+					"Longitude": parseFloat(evt.target.lng.value),
+					"Type": attributes,
+				}
+			},
 		], function(err, records) {
 		if (err) {
-			console.error(err);
-			return;
-		}
+				console.error(err);
+				return;
+			}
 		})
 
-		setMarkerForm(false)
+		mapDispatch({ type: "ADD_MARKER", 
+			payload: { marker: { 
+				name: evt.target.placename.value,
+				notes: evt.target.notes.value,
+				lat: parseFloat(evt.target.lat.value),
+				lng: parseFloat(evt.target.lng.value),
+				type: attributes,
+				icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-Pic.png"} 
+			}});
+
+		toggleMapClickable()
 	}
 
-	useEffect(() => {
-
-		base('Locations V0').select({
-			maxRecords: 1000,
-			view: "Grid view"
-		}).eachPage(function page(records, fetchNextPage) {
-
-		records.forEach(function(record) {
-			recordsArr.push({
-				id: record.id,
-				name: record.get("Location"),
-				notes: record.get("Notes"),
-				longitude: record.get('Longitude'),
-				latitude: record.get('Latitude'),
-				type: record.get('Type'),
-				group: record.get('Group'),
-				time: record.get('Created').substring(0,10)
-			})
-
-			// make an array of new groups
-			let group = record.get('Group')
-			if ( group !== undefined && groupsArr.includes(group[0]) === false) {
-				groupsArr.push(group[0])
-				console.log("found new group called ", group)
-				console.log(groupsArr.includes(group))
-			} 
-
-			// make an array of new types
-			let type = record.get('Type')
-			if ( type !== undefined && typesArr.includes(type[0]) === false) {
-				typesArr.push(type[0])
-				console.log("found new group called ", type)
-				console.log(typesArr.includes(type))
-			} 
-		});
-
-			fetchNextPage();
-			return;
-		}, function done(err) {
-			if (err) { console.error(err); 
-				return;
-			} else {
-				setPlaces(recordsArr); // State mutation react hook to append a new location to here.!!
-				console.log("loaded " + recordsArr.length + " records")
-				console.log("loaded " + groupsArr.length + " groups")
-				console.log("loaded " + typesArr.length + " types")
-			}
-		});
-	}, []);
-
-
 	return (
-		<div style={{ height: '100vh', width: '100%' }}>
+		<ReactMapGL
+			{...mapViewport}
+			onMove={evt => setMapViewport(evt.mapViewport)}
+			onClick={evt => {
+				mapClickable && (() =>{
+					setLat(evt.lngLat.lat);
+					setLng(evt.lngLat.lng);
+					mapDispatch({ type: "TEMP_MARKER", 
+						payload: { marker: 
+							{...evt.lngLat, 
+								icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png"} 
+							}});
+					setMarkerForm(true);
+					})();
+				}
+			}
+			style={{width: "100vw", height: "100vh"}}
+			mapboxAccessToken={mapboxToken}
+			mapStyle="mapbox://styles/mapbox/streets-v11"
+			onViewportChange={setMapViewport}
+		>
+			<Markers/>
+
 			{ markerForm && (
 				<div id="markerFormContainer">
 					<form id="newMarkerForm" onSubmit={createMarker}>
@@ -369,107 +126,51 @@ function Map() {
 						<textarea id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"></textarea>
 
 						<span><input type="radio" id="hope" name="type" value="A Hopeful Experience" />
-  						<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
-  						<span><input type="radio" id="support" name="type" value="A Place of Support" />
-  						<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
-  						<span><input type="radio" id="memory" name="type" value="A Memory" />
-  						<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
-  						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
-  						<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
+						<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
+						<span><input type="radio" id="support" name="type" value="A Place of Support" />
+						<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
+						<span><input type="radio" id="memory" name="type" value="A Memory" />
+						<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
+						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
+						<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
 
-						<input type="hidden" name="lat" value={latLng.lat()} />
-						<input type="hidden" name="lng" value={latLng.lng()} />
+						<input type="hidden" name="lat" value={lat} />
+						<input type="hidden" name="lng" value={lng} />
 						<input id="submitButton" type="submit" value="Add New Note to Map" />
 						<input id="closeFormButton" type="button" value="Close Form" onClick={function() {setMarkerForm(false)}} />
 					</form>
 				</div>
 			)}
-			{ !isEmpty(places) && (
-				<GoogleMap
-					zoom={zoom}
-					center={center}
-					bootstrapURLKeys={{ key: process.env.REACT_APP_MAP_KEY }}
-					yesIWantToUseGoogleMapApiInternals
-					onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps, places)}
-		            options={{ mapId: id }}
-                    fullscreenControl={false}
-				/> 
-			)}
-
-			<SearchBar />
 
 			<div className="narrativeGroupContainer">
-				{recordsArr && groupsArr.map((group) =>	
-			    	<div>
-				    	<div className="narrativeGroup navButton" value={group}>{group}</div>
-			    	</div>
-		    	)}
-
-
-
-		{/*		<div className="narrativeGroup navButton" id="scams">
-					Scams
-				</div>
-				<div className="narrativeGroup navButton" id="control">
-					Control
-				</div>
-				<div className="narrativeGroup navButton" id="time">
-					Time and Uncertainty
-				</div>
-				<div className="narrativeGroup navButton" id="life">
-					Making Life Impossible
-				</div>*/}
-
+				{origMarkers && origMarkers.reduce(function(groups, marker){ 
+					// selects the list of possible groups that the markers can belong to
+					if(marker.group !== undefined){
+						marker.group.forEach(group => {
+							if (!groups.includes(group)) {
+								groups.push(group);
+								}
+							})
+						}
+						return groups;
+					}, [])
+					.map((group) =>
+						<div>
+							<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
+						</div>
+					)}
 			</div>
 
 			<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
 				{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
 			</div>
 
-			<div className="navButton" id="toggleMap">
-				Toggle all map locations
+			<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
+				Show all map locations
 			</div>
 
 
-
-
-		 	<div className="showMenu">
-		 		Menu
-		 	</div>
-
-		    {/*<div className="menuList">
-
-			    {recordsArr && typesArr.map((type) =>
-				    
-				    	<div className="locationItem filterButton" value={type}>Filter Type: {type}</div>
-			    	)
-			}
-
-
-			    {recordsArr && groupsArr.map((group) =>	
-
-			    	<div>
-				    	<div className="locationItem markerGroup" value={group}>Narrative Group: {group}</div>
-			    	</div>
-
-			    	)}
-
-			    {recordsArr && recordsArr.map((record, index) =>
-				    	<div className="locationItem individualPlace" value={record.name} onClick={function() { setCenter([record.latitude, record.longitude]); setZoom(zoom) }}>
-					    	<div className="locationItemInfo">
-								<div className="locationItemName">
-						    		{record.name}
-						    	</div>
-						    	<div className="locationItemNotes">
-						    		{record.notes}
-						    	</div>
-					    	</div>
-				    	</div>
-			    	)
-				}
-			</div>*/}
-
-		</div>
+		</ReactMapGL>
 	);
 }
 

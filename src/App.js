@@ -1,6 +1,6 @@
 // import './App.css';
 import React, { useState, useEffect, useRef } from 'react';
-import Map from './components/MapboxMap.js';
+import Map from './components/Map.js';
 import { MapProvider } from "./hooks/MapHooks.js";
 
 function App() {
