@@ -165,8 +165,8 @@ const Map = () => {
 				{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
 			</div>
 
-			<div className="navButton" id="toggleMap">
-				Toggle all map locations
+			<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
+				Show all map locations
 			</div>
 
 
