@@ -2,11 +2,13 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { useDispatchMap, useStateMap } from "../hooks/MapHooks.js";
 import { Markers } from "./Markers.js";
+import Airtable from 'airtable';
 import ReactMapGL from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import "./Map.css"
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
+const base = new Airtable({apiKey: process.env.REACT_APP_AIRTABLE_KEY}).base(process.env.REACT_APP_AIRTABLE_BASE);
 
 const Map = () => {
 	const mapContainer = useRef(null);
@@ -35,6 +37,49 @@ const Map = () => {
 		setMapClickable(!mapClickable)
 	}
 
+	// new marker submission to airtable on form submit
+	const createMarker = (evt) => {
+		evt.preventDefault()
+
+		// make array of checked attributes
+		let attributes = []
+		evt.target.type.forEach( (check, i) => {
+			if (check.checked === true) {
+				attributes.push(check.value)
+			}
+		})
+
+		var name = ""
+		
+		if(evt.target.placename.value !== "") {
+			name = evt.target.placename.value
+			console.log("awww", name)
+		} else {
+			name = attributes
+			console.log("whyyy", name[0], evt.target.placename.value, attributes)
+		}
+
+		console.log(' New marker: \n', "Name: ", name[0] + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
+
+		base('Locations V0').create([
+		  {
+			"fields": {
+			  "Location": name[0],
+			  "Notes": evt.target.notes.value,
+			  "Latitude": parseFloat(evt.target.lat.value),
+			  "Longitude": parseFloat(evt.target.lng.value),
+			  "Type": attributes,
+			}
+		  },
+		], function(err, records) {
+		if (err) {
+			console.error(err);
+			return;
+		}
+		})
+
+		setMarkerForm(false)
+	}
 
 	return (
 		<ReactMapGL
@@ -43,6 +88,7 @@ const Map = () => {
 			onClick={evt => {
 				mapClickable && mapDispatch({ type: "ADD_MARKER", 
 					payload: { marker: {...evt.lngLat, icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png"} }});
+				setMarkerForm(true)
 				}
 			}
 			style={{width: "100vw", height: "100vh"}}
@@ -51,6 +97,29 @@ const Map = () => {
 			onViewportChange={setMapViewport}
 		>
 			<Markers/>
+
+			{ markerForm && (
+				<div id="markerFormContainer">
+					<form id="newMarkerForm" onSubmit={createMarker}>
+						<input id="placenameInput" type="text" name="placename" placeholder="Enter Place Name"/>
+						<textarea id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"></textarea>
+
+						<span><input type="radio" id="hope" name="type" value="A Hopeful Experience" />
+  						<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
+  						<span><input type="radio" id="support" name="type" value="A Place of Support" />
+  						<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
+  						<span><input type="radio" id="memory" name="type" value="A Memory" />
+  						<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
+  						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
+  						<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
+
+						<input type="hidden" name="lat" value={lat} />
+						<input type="hidden" name="lng" value={lng} />
+						<input id="submitButton" type="submit" value="Add New Note to Map" />
+						<input id="closeFormButton" type="button" value="Close Form" onClick={function() {setMarkerForm(false)}} />
+					</form>
+				</div>
+			)}
 
 			<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
 				{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
