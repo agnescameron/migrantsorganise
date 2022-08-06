@@ -41,6 +41,12 @@ const Map = () => {
 	const createMarker = (evt) => {
 		evt.preventDefault()
 
+
+		if(evt.target.placename.value == "") {
+			alert("site must have a name")
+			return;
+		}
+
 		// make array of checked attributes
 		let attributes = []
 		evt.target.type.forEach( (check, i) => {
@@ -49,22 +55,12 @@ const Map = () => {
 			}
 		})
 
-		var name = ""
-		
-		if(evt.target.placename.value !== "") {
-			name = evt.target.placename.value
-			console.log("awww", name)
-		} else {
-			name = attributes
-			console.log("whyyy", name[0], evt.target.placename.value, attributes)
-		}
-
-		console.log(' New marker: \n', "Name: ", name[0] + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
+		console.log(' New marker: \n', "Name: ", evt.target.placename.value + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
 
 		base('Locations V0').create([
 		  {
 			"fields": {
-			  "Location": name[0],
+			  "Location": evt.target.placename.value,
 			  "Notes": evt.target.notes.value,
 			  "Latitude": parseFloat(evt.target.lat.value),
 			  "Longitude": parseFloat(evt.target.lng.value),
@@ -86,9 +82,12 @@ const Map = () => {
 			{...mapViewport}
 			onMove={evt => setMapViewport(evt.mapViewport)}
 			onClick={evt => {
-				mapClickable && mapDispatch({ type: "ADD_MARKER", 
-					payload: { marker: {...evt.lngLat, icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png"} }});
-				setMarkerForm(true)
+				mapClickable && 
+					setLat(evt.lngLat.lat);
+					setLng(evt.lngLat.lng);
+					mapDispatch({ type: "ADD_MARKER", 
+						payload: { marker: {...evt.lngLat, icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png"} }});
+					setMarkerForm(true);
 				}
 			}
 			style={{width: "100vw", height: "100vh"}}
