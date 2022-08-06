@@ -53,6 +53,11 @@ export const MapReducer = (state, action) => {
 				...state,
 				markers: [...state.origMarkers, action.payload.marker]
 			};
+		case "ADD_MARKER_PERM":
+			return {
+				...state,
+				origMarkers: [...state.origMarkers, action.payload.marker]
+			};
 		case "REMOVE_MARKER":
 			return {
 				...state,

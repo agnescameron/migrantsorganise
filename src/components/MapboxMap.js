@@ -20,6 +20,7 @@ const Map = () => {
 	const [zoom, setZoom] = useState(10);
 	const mapDispatch = useDispatchMap();
 
+
 	const [mapViewport, setMapViewport] = useState({
 		height: "100vh",
 		width: "100wh",
@@ -41,7 +42,6 @@ const Map = () => {
 	const createMarker = (evt) => {
 		evt.preventDefault()
 
-
 		if(evt.target.placename.value == "") {
 			alert("site must have a name")
 			return;
@@ -55,26 +55,34 @@ const Map = () => {
 			}
 		})
 
-		console.log(' New marker: \n', "Name: ", evt.target.placename.value + "\n", "Type: ", attributes + "\n", "Notes: ", evt.target.notes.value + "\n", "Co-ordinates: ", evt.target.lat.value, evt.target.lng.value + "\n",  )
-
 		base('Locations V0').create([
-		  {
-			"fields": {
-			  "Location": evt.target.placename.value,
-			  "Notes": evt.target.notes.value,
-			  "Latitude": parseFloat(evt.target.lat.value),
-			  "Longitude": parseFloat(evt.target.lng.value),
-			  "Type": attributes,
-			}
-		  },
+			{
+				"fields": {
+					"Location": evt.target.placename.value,
+					"Notes": evt.target.notes.value,
+					"Latitude": parseFloat(evt.target.lat.value),
+					"Longitude": parseFloat(evt.target.lng.value),
+					"Type": attributes,
+				}
+			},
 		], function(err, records) {
 		if (err) {
-			console.error(err);
-			return;
-		}
+				console.error(err);
+				return;
+			}
 		})
 
-		setMarkerForm(false)
+		mapDispatch({ type: "ADD_MARKER_PERM", 
+			payload: { marker: { 
+				name: evt.target.placename.value,
+				notes: evt.target.notes.value,
+				lat: parseFloat(evt.target.lat.value),
+				lng: parseFloat(evt.target.lng.value),
+				type: attributes,
+				icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-Pic.png"} 
+			}});
+
+		toggleMapClickable()
 	}
 
 	return (
@@ -82,12 +90,16 @@ const Map = () => {
 			{...mapViewport}
 			onMove={evt => setMapViewport(evt.mapViewport)}
 			onClick={evt => {
-				mapClickable && 
+				mapClickable && (() =>{
 					setLat(evt.lngLat.lat);
 					setLng(evt.lngLat.lng);
 					mapDispatch({ type: "ADD_MARKER", 
-						payload: { marker: {...evt.lngLat, icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png"} }});
+						payload: { marker: 
+							{...evt.lngLat, 
+								icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png"} 
+							}});
 					setMarkerForm(true);
+					})();
 				}
 			}
 			style={{width: "100vw", height: "100vh"}}
