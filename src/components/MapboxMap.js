@@ -4,6 +4,7 @@ import { useDispatchMap, useStateMap } from "../hooks/MapHooks.js";
 import { Markers } from "./Markers.js";
 import ReactMapGL from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
+import "./Map.css"
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
 
@@ -13,6 +14,7 @@ const Map = () => {
 	const [lng, setLng] = useState(-0.04);
 	const [lat, setLat] = useState(51.47563);
 	const [mapClickable, setMapClickable] = useState(false);
+	const [markerForm, setMarkerForm] = useState(false);
 	const [zoom, setZoom] = useState(10);
 	const mapDispatch = useDispatchMap();
 
@@ -23,6 +25,16 @@ const Map = () => {
 		latitude: lat,
 		zoom: zoom
 	});
+
+	const toggleMapClickable = () => {
+		if (mapClickable) {
+			setMarkerForm(false);
+			mapDispatch({ type: "RESET"});
+		}
+
+		setMapClickable(!mapClickable)
+	}
+
 
 	return (
 		<ReactMapGL
@@ -39,6 +51,15 @@ const Map = () => {
 			onViewportChange={setMapViewport}
 		>
 			<Markers/>
+
+			<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
+				{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
+			</div>
+
+			<div className="navButton" id="toggleMap">
+				Toggle all map locations
+			</div>
+
 
 		</ReactMapGL>
 	);

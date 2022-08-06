@@ -43,6 +43,11 @@ export const useDispatchMap = () => {
 
 export const MapReducer = (state, action) => {
 	switch (action.type) {
+		case "RESET":
+			return {
+				...state,
+				markers: state.origMarkers
+			};
 		case "ADD_MARKER":
 			return {
 				...state,
