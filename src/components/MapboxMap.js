@@ -19,7 +19,7 @@ const Map = () => {
 	const [markerForm, setMarkerForm] = useState(false);
 	const [zoom, setZoom] = useState(10);
 	const mapDispatch = useDispatchMap();
-	const { markers } = useStateMap();
+	const { markers, origMarkers } = useStateMap();
 
 	const [mapViewport, setMapViewport] = useState({
 		height: "100vh",
@@ -37,6 +37,16 @@ const Map = () => {
 
 		setMapClickable(!mapClickable)
 	}
+
+	const showNarrative = (evt) => {
+		evt.preventDefault()
+		const group = evt.target.innerText;
+		const markerGroup = origMarkers.filter(marker => marker.group !== undefined && marker.group.includes(group) )
+		mapDispatch({ type: "MARKER_SUBGROUP", payload:{
+			markers: markerGroup
+		}})
+	}
+
 
 	// new marker submission to airtable on form submit
 	const createMarker = (evt) => {
@@ -133,10 +143,10 @@ const Map = () => {
 			)}
 
 			<div className="narrativeGroupContainer">
-				{markers && markers.reduce(function(groups, entry){ 
+				{origMarkers && origMarkers.reduce(function(groups, marker){ 
 					// selects the list of possible groups that the markers can belong to
-					if(entry.group !== undefined){
-						entry.group.forEach(group => {
+					if(marker.group !== undefined){
+						marker.group.forEach(group => {
 							if (!groups.includes(group)) {
 								groups.push(group);
 								}
@@ -146,7 +156,7 @@ const Map = () => {
 					}, [])
 					.map((group) =>	
 						<div>
-							<div className="narrativeGroup navButton" value={group}>{group}</div>
+							<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
 						</div>
 					)}
 			</div>
