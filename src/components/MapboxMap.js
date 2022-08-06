@@ -154,7 +154,7 @@ const Map = () => {
 						}
 						return groups;
 					}, [])
-					.map((group) =>	
+					.map((group) =>
 						<div>
 							<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
 						</div>
