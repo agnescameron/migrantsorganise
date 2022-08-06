@@ -12,7 +12,6 @@ const Map = () => {
 	const map = useRef(null);
 	const [lng, setLng] = useState(-0.04);
 	const [lat, setLat] = useState(51.47563);
-	const [places, setPlaces] = useState([]);
 	const [mapClickable, setMapClickable] = useState(false);
 	const [zoom, setZoom] = useState(10);
 	const mapDispatch = useDispatchMap();
@@ -29,16 +28,9 @@ const Map = () => {
 		<ReactMapGL
 			{...mapViewport}
 			onMove={evt => setMapViewport(evt.mapViewport)}
-			onLoad={evt => {
-				console.log('event', evt)
-				mapClickable && mapDispatch({ type: "ADD_MARKERS", 
-					payload: { marker: evt.lngLat } });
-				}
-			}
 			onClick={evt => {
-				console.log('event', evt)
 				mapClickable && mapDispatch({ type: "ADD_MARKER", 
-					payload: { marker: evt.lngLat } });
+					payload: { marker: {...evt.lngLat, icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png"} }});
 				}
 			}
 			style={{width: "100vw", height: "100vh"}}
@@ -47,6 +39,7 @@ const Map = () => {
 			onViewportChange={setMapViewport}
 		>
 			<Markers/>
+
 		</ReactMapGL>
 	);
 }

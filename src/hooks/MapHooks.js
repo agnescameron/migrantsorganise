@@ -15,7 +15,7 @@ export const MapProvider = ({ children, locations }) => {
 			'types': location.fields.Type,
 			 })
 	}
-	const [state, dispatch] = useReducer(MapReducer, { markers: markers });
+	const [state, dispatch] = useReducer(MapReducer, { markers: markers, origMarkers: markers });
 	return (
 		<MapStateContext.Provider value={state}>
 			<MapDispatchContext.Provider value={dispatch}>
@@ -46,7 +46,7 @@ export const MapReducer = (state, action) => {
 		case "ADD_MARKER":
 			return {
 				...state,
-				markers: [...state.markers, action.payload.marker]
+				markers: [...state.origMarkers, action.payload.marker]
 			};
 		case "REMOVE_MARKER":
 			return {
