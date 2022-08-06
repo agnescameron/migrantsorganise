@@ -13,6 +13,7 @@ export const MapProvider = ({ children, locations }) => {
 			'notes': location.fields.Notes,
 			'name': location.fields.Name,
 			'types': location.fields.Type,
+			'group': location.fields.Group,
 			 })
 	}
 	const [state, dispatch] = useReducer(MapReducer, { markers: markers, origMarkers: markers });

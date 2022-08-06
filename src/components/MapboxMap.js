@@ -19,7 +19,7 @@ const Map = () => {
 	const [markerForm, setMarkerForm] = useState(false);
 	const [zoom, setZoom] = useState(10);
 	const mapDispatch = useDispatchMap();
-
+	const { markers } = useStateMap();
 
 	const [mapViewport, setMapViewport] = useState({
 		height: "100vh",
@@ -116,13 +116,13 @@ const Map = () => {
 						<textarea id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"></textarea>
 
 						<span><input type="radio" id="hope" name="type" value="A Hopeful Experience" />
-  						<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
-  						<span><input type="radio" id="support" name="type" value="A Place of Support" />
-  						<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
-  						<span><input type="radio" id="memory" name="type" value="A Memory" />
-  						<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
-  						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
-  						<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
+						<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
+						<span><input type="radio" id="support" name="type" value="A Place of Support" />
+						<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
+						<span><input type="radio" id="memory" name="type" value="A Memory" />
+						<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
+						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
+						<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
 
 						<input type="hidden" name="lat" value={lat} />
 						<input type="hidden" name="lng" value={lng} />
@@ -131,6 +131,25 @@ const Map = () => {
 					</form>
 				</div>
 			)}
+
+			<div className="narrativeGroupContainer">
+				{markers && markers.reduce(function(groups, entry){ 
+					// selects the list of possible groups that the markers can belong to
+					if(entry.group !== undefined){
+						entry.group.forEach(group => {
+							if (!groups.includes(group)) {
+								groups.push(group);
+								}
+							})
+						}
+						return groups;
+					}, [])
+					.map((group) =>	
+						<div>
+							<div className="narrativeGroup navButton" value={group}>{group}</div>
+						</div>
+					)}
+			</div>
 
 			<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
 				{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
