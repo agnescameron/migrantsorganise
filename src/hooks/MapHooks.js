@@ -48,12 +48,12 @@ export const MapReducer = (state, action) => {
 				...state,
 				markers: state.origMarkers
 			};
-		case "ADD_MARKER":
+		case "TEMP_MARKER":
 			return {
 				...state,
 				markers: [...state.origMarkers, action.payload.marker]
 			};
-		case "ADD_MARKER_PERM":
+		case "ADD_MARKER":
 			return {
 				...state,
 				origMarkers: [...state.origMarkers, action.payload.marker]

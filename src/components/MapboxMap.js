@@ -72,7 +72,7 @@ const Map = () => {
 			}
 		})
 
-		mapDispatch({ type: "ADD_MARKER_PERM", 
+		mapDispatch({ type: "ADD_MARKER", 
 			payload: { marker: { 
 				name: evt.target.placename.value,
 				notes: evt.target.notes.value,
@@ -93,7 +93,7 @@ const Map = () => {
 				mapClickable && (() =>{
 					setLat(evt.lngLat.lat);
 					setLng(evt.lngLat.lng);
-					mapDispatch({ type: "ADD_MARKER", 
+					mapDispatch({ type: "TEMP_MARKER", 
 						payload: { marker: 
 							{...evt.lngLat, 
 								icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png"} 
