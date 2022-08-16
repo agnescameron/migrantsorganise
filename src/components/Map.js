@@ -5,6 +5,7 @@ import { Markers } from "./Markers.js";
 import Airtable from 'airtable';
 import ReactMapGL from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
+import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker';
 import "./Map.css"
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
