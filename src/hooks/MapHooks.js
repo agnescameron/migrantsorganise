@@ -5,8 +5,10 @@ const MapDispatchContext = createContext();
 
 export const MapProvider = ({ children, locations }) => {
 	const markers = []
+
 	for (const location of locations) {
 		markers.push({
+			'id': location.id,
 			'lng': location.fields.Longitude, 
 			'lat': location.fields.Latitude,
 			'icon': 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png',

@@ -12,6 +12,7 @@ export const Markers = () => {
 		<>
 			{markers && markers.map((marker, index) => (
 				<Marker
+					key={marker.id}
 					offsetTop={-15}
 					offsetLeft={-15}
 					latitude={marker.lat}

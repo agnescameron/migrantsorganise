@@ -1,10 +1,13 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { useDispatchMap, useStateMap } from "../hooks/MapHooks.js";
 import { Markers } from "./Markers.js";
+import { SearchBox } from "@mapbox/search-js-react";
 import Airtable from 'airtable';
 import ReactMapGL from "react-map-gl";
+// import Geocoder from 'react-map-gl-geocoder'
 import 'mapbox-gl/dist/mapbox-gl.css';
+// import "react-map-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import "./Map.css"
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
@@ -12,7 +15,7 @@ const base = new Airtable({apiKey: process.env.REACT_APP_AIRTABLE_KEY}).base(pro
 
 const Map = () => {
 	const mapContainer = useRef(null);
-	const map = useRef(null);
+	const mapRef = useRef();
 	const [lng, setLng] = useState(-0.04);
 	const [lat, setLat] = useState(51.47563);
 	const [mapClickable, setMapClickable] = useState(false);
@@ -28,6 +31,11 @@ const Map = () => {
 		latitude: lat,
 		zoom: zoom
 	});
+
+		const handleViewportChange = useCallback(
+		(newViewport) => setMapViewport(newViewport),
+		[]
+	);
 
 	const toggleMapClickable = () => {
 		if (mapClickable) {
@@ -47,6 +55,22 @@ const Map = () => {
 		}})
 	}
 
+  // if you are happy with Geocoder default settings, you can just use handleViewportChange directly
+  // const handleGeocoderViewportChange = useCallback(
+  //   (newViewport) => {
+  //     const geocoderDefaultOverrides = { transitionDuration: 1000 };
+
+  //     return handleViewportChange({
+  //       ...newViewport,
+  //       ...geocoderDefaultOverrides
+  //     });
+  //   },
+  //   []
+  // );
+
+	const handleResult = () => {
+		console.log('handling result')
+	}
 
 	// new marker submission to airtable on form submit
 	const createMarker = (evt) => {
@@ -98,6 +122,7 @@ const Map = () => {
 	return (
 		<ReactMapGL
 			{...mapViewport}
+			ref={mapRef}
 			onMove={evt => setMapViewport(evt.mapViewport)}
 			onClick={evt => {
 				mapClickable && (() =>{
@@ -117,6 +142,17 @@ const Map = () => {
 			mapStyle="mapbox://styles/mapbox/streets-v11"
 			onViewportChange={setMapViewport}
 		>
+			<div id="search-input">
+				<SearchBox 
+					accessToken={mapboxToken}
+					map={mapRef}
+					options={{language: 'en', country: 'US'}}
+					onChange={() => console.log('change')}
+					onSuggest={() => console.log('suggest')}
+					onSuggestError={() => console.log('sugerror')}
+				/>
+			</div>
+
 			<Markers/>
 
 			{ markerForm && (
@@ -154,9 +190,11 @@ const Map = () => {
 						}
 						return groups;
 					}, [])
-					.map((group) =>
+					.map((group, index) =>
 						<div>
-							<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
+							<div className="narrativeGroup navButton" key={index} value={group} onClick={showNarrative}>
+								{group}
+							</div>
 						</div>
 					)}
 			</div>
@@ -168,7 +206,6 @@ const Map = () => {
 			<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
 				Show all map locations
 			</div>
-
 
 		</ReactMapGL>
 	);
