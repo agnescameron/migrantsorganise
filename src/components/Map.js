@@ -7,6 +7,10 @@ import ReactMapGL from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker';
 import "./Map.css"
+import Places from 'google-places-web';
+
+Places.apiKey = process.env.REACT_APP_MAPS_KEY;
+
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
 const base = new Airtable({apiKey: process.env.REACT_APP_AIRTABLE_KEY}).base(process.env.REACT_APP_AIRTABLE_BASE);
@@ -49,10 +53,12 @@ const Map = () => {
 	}
 
 
-	const findPlace = (evt) => {
+	const findPlace = async (evt) => {
 		evt.preventDefault()
 		const place = evt.target.value;
-		console.log(place)
+		// console.log(place);
+		const search = await Places.autocomplete({input: place});
+		console.log(search);
 	}
 
 	// new marker submission to airtable on form submit
