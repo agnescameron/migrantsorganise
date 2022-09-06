@@ -65,7 +65,7 @@ const Map = () => {
 			}
 		})
 
-		base('Locations V0').create([
+		base(process.env.REACT_APP_AIRTABLE_TABLE).create([
 			{
 				"fields": {
 					"Location": evt.target.placename.value,
