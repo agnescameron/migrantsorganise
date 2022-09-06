@@ -49,6 +49,12 @@ const Map = () => {
 	}
 
 
+	const findPlace = (evt) => {
+		evt.preventDefault()
+		const place = evt.target.value;
+		console.log(place)
+	}
+
 	// new marker submission to airtable on form submit
 	const createMarker = (evt) => {
 		evt.preventDefault()
@@ -170,6 +176,10 @@ const Map = () => {
 				Show all map locations
 			</div>
 
+
+			<div id="search-input">
+				<input type="text" id="placeSearch" onChange={findPlace} />
+			</div>
 
 		</ReactMapGL>
 	);
