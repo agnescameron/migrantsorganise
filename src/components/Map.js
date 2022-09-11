@@ -20,6 +20,7 @@ const Map = () => {
 	const map = useRef(null);
 	const [lng, setLng] = useState(-0.04);
 	const [lat, setLat] = useState(51.47563);
+	const [placeList, setPlaceList] = useState([]);
 	const [mapClickable, setMapClickable] = useState(false);
 	const [markerForm, setMarkerForm] = useState(false);
 	const [zoom, setZoom] = useState(10);
@@ -58,7 +59,12 @@ const Map = () => {
 		const place = evt.target.value;
 		// console.log(place);
 		const search = await Places.autocomplete({input: place});
-		console.log(search);
+		setPlaceList(search.predictions);
+		console.log("placelist is", placeList);
+
+		placeList.forEach( place => {
+			console.log(place.description)
+		})
 	}
 
 	// new marker submission to airtable on form submit
@@ -185,6 +191,10 @@ const Map = () => {
 
 			<div id="search-input">
 				<input type="text" id="placeSearch" onChange={findPlace} />
+			<div>				{placeList.length > 0 && placeList.map( (prediction) => 
+					<div>{prediction.description}</div>
+				)}
+				</div>
 			</div>
 
 		</ReactMapGL>
