@@ -59,6 +59,10 @@ const Map = () => {
 		setShowSearch(false);
 	}
 
+	const zoomToPlace = (prediction) => {
+		console.log(prediction)
+	}
+
 	const findPlace = async (evt) => {
 		evt.preventDefault()
 		const place = evt.target.value;
@@ -196,15 +200,15 @@ const Map = () => {
 			</div>
 
 
-			<div id="search-input">
+			<div id="search-input" onMouseLeave={hideSearch}>
 				{placeList.length > 0 && showSearch &&
 					<ul>
 					{ placeList.map( (prediction) => 
-						<li>{prediction.description}</li>
+						<li data="aaa" onClick={e => zoomToPlace(prediction)}>{prediction.description}</li>
 					)}
 					</ul>
 				}
-				<input type="text" id="placeSearch" onChange={findPlace} onMouseLeave={hideSearch} />
+				<input type="text" id="placeSearch" onChange={findPlace}/>
 			</div>
 
 		</ReactMapGL>
