@@ -21,6 +21,7 @@ const Map = () => {
 	const [lng, setLng] = useState(-0.04);
 	const [lat, setLat] = useState(51.47563);
 	const [placeList, setPlaceList] = useState([]);
+	const [showSearch, setShowSearch] = useState(false);
 	const [mapClickable, setMapClickable] = useState(false);
 	const [markerForm, setMarkerForm] = useState(false);
 	const [zoom, setZoom] = useState(10);
@@ -53,6 +54,10 @@ const Map = () => {
 		}})
 	}
 
+	const hideSearch = (evt) => {
+		evt.preventDefault()
+		setShowSearch(false);
+	}
 
 	const findPlace = async (evt) => {
 		evt.preventDefault()
@@ -65,6 +70,8 @@ const Map = () => {
 		placeList.forEach( place => {
 			console.log(place.description)
 		})
+
+		setShowSearch(true);
 	}
 
 	// new marker submission to airtable on form submit
@@ -190,11 +197,14 @@ const Map = () => {
 
 
 			<div id="search-input">
-				<input type="text" id="placeSearch" onChange={findPlace} />
-			<div>				{placeList.length > 0 && placeList.map( (prediction) => 
-					<div>{prediction.description}</div>
-				)}
-				</div>
+				{placeList.length > 0 && showSearch &&
+					<ul>
+					{ placeList.map( (prediction) => 
+						<li>{prediction.description}</li>
+					)}
+					</ul>
+				}
+				<input type="text" id="placeSearch" onChange={findPlace} onMouseLeave={hideSearch} />
 			</div>
 
 		</ReactMapGL>
