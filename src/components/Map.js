@@ -59,23 +59,29 @@ const Map = () => {
 		setShowSearch(false);
 	}
 
-	const zoomToPlace = (prediction) => {
-		console.log(prediction)
+	const submitSearch = (evt) => {
+		evt.preventDefault()
+		zoomToPlace(placeList[0]);
+	}
+
+	const zoomToPlace = async (prediction) => {
+		// console.log(prediction.place_id)
+		const details = await Places.details({placeid: prediction.place_id});
+		console.log(details.result.geometry.location)
+		setMapViewport({
+		height: "100vh",
+		width: "100wh",
+		longitude: details.result.geometry.location.lng,
+		latitude: details.result.geometry.location.lat,
+		zoom: zoom
+	})
 	}
 
 	const findPlace = async (evt) => {
 		evt.preventDefault()
 		const place = evt.target.value;
-		// console.log(place);
-		console.log('latlng is', lat + "," + lng)
-		const search = await Places.autocomplete({input: place, location: lat + "," + lng, radius: zoom*10});  //circle: "10@" + 
+		const search = await Places.autocomplete({input: place, location: lat + "," + lng, radius: zoom*10});
 		setPlaceList(search.predictions);
-		console.log("placelist is", placeList);
-
-		placeList.forEach( place => {
-			console.log(place.description)
-		})
-
 		setShowSearch(true);
 	}
 
@@ -215,7 +221,9 @@ const Map = () => {
 					)}
 					</ul>
 				}
-				<input type="text" id="placeSearch" onChange={findPlace} onClick={findPlace}/>
+				<form onSubmit={submitSearch}>
+					<input type="text" id="placeSearch" onChange={findPlace} onClick={findPlace}/>
+				</form>
 			</div>
 
 		</ReactMapGL>
