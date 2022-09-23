@@ -5,12 +5,16 @@ import { Markers } from "./Markers.js";
 import Airtable from 'airtable';
 import ReactMapGL from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker';
 import "./Map.css"
 import Places from 'google-places-web';
 
-Places.apiKey = process.env.REACT_APP_MAPS_KEY;
+import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker';
 
+mapboxgl.workerClass = MapboxWorker;
+
+
+Places.apiKey = process.env.REACT_APP_MAPS_KEY;
+// mapboxgl.workerClass = MapboxWorker;
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
 const base = new Airtable({apiKey: process.env.REACT_APP_AIRTABLE_KEY}).base(process.env.REACT_APP_AIRTABLE_BASE);
