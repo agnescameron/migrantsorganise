@@ -60,8 +60,9 @@ const Map = () => {
 	}
 
 	const submitSearch = (evt) => {
-		evt.preventDefault()
+		evt.preventDefault();
 		zoomToPlace(placeList[0]);
+		setPlaceList([]);
 	}
 
 	const zoomToPlace = async (prediction) => {
@@ -213,16 +214,16 @@ const Map = () => {
 			</div>
 
 
-			<div id="search-input" onMouseLeave={hideSearch}>
+			<div id="search-input" className="searchBox" onMouseLeave={hideSearch} onMouseEnter={() => setShowSearch(true)}>
 				{placeList.length > 0 && showSearch &&
-					<ul>
+					<ul className="noPoints">
 					{ placeList.map( (prediction) => 
-						<li data="aaa" onClick={e => zoomToPlace(prediction)}>{prediction.description}</li>
+						<li onClick={e => zoomToPlace(prediction)}>{prediction.description}</li>
 					)}
 					</ul>
 				}
 				<form onSubmit={submitSearch}>
-					<input type="text" id="placeSearch" onChange={findPlace} onClick={findPlace}/>
+					<input type="text" id="placeSearch" onChange={findPlace}/>
 				</form>
 			</div>
 

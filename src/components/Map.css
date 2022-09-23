@@ -141,13 +141,19 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 	border: 3px black solid;
 	border-radius: 10px;
 	margin: 20px;
-}
-
-.navButton {
 	padding: 10px;
 	font-size: 1.5rem;
 	background-color: white;
 }
+
+.searchBox {
+	border: 3px black solid;
+	border-radius: 10px;
+	padding: 10px;
+	font-size: 1rem;
+	background-color: white;
+}
+
 
 #addLocation {
 	position: fixed;
@@ -202,6 +208,12 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 	z-index: 100;
 	background-color: white;
 	border-radius: 10px;
+	}
+
+  .noPoints {
+		list-style-type: none;
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margins */
 	}
 
 .menuList {
