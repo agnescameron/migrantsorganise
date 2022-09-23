@@ -5,15 +5,13 @@ import { Markers } from "./Markers.js";
 import Airtable from 'airtable';
 import ReactMapGL from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import "./Map.css"
-import Places from 'google-places-web';
+import "./Map.css";
+import fetch from 'node-fetch';
 
 import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker';
 
 mapboxgl.workerClass = MapboxWorker;
 
-
-Places.apiKey = process.env.REACT_APP_MAPS_KEY;
 // mapboxgl.workerClass = MapboxWorker;
 
 const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN
@@ -71,8 +69,15 @@ const Map = () => {
 
 	const zoomToPlace = async (prediction) => {
 		// console.log(prediction.place_id)
-		const details = await Places.details({placeid: prediction.place_id});
-		console.log(details.result.geometry.location)
+		// const details = await Places.details({placeid: prediction.place_id});
+		const res = await fetch('/api/details.js', {
+		    method: 'POST',
+		    body: JSON.stringify({placeid: prediction.place_id}),
+		    headers: { 'Content-Type': 'application/json' },
+		  });
+		const detailJson = await res.json();
+		const details = detailJson.body;
+		console.log(details);
 		setMapViewport({
 		height: "100vh",
 		width: "100wh",
@@ -85,7 +90,15 @@ const Map = () => {
 	const findPlace = async (evt) => {
 		evt.preventDefault()
 		const place = evt.target.value;
-		const search = await Places.autocomplete({input: place, location: lat + "," + lng, radius: zoom*10});
+		// const search = await Places.autocomplete({input: place, location: lat + "," + lng, radius: zoom*10});
+		const res = await fetch('/api/autocomplete.js', {
+		    method: 'POST',
+		    body: JSON.stringify({input: place, location: lat + "," + lng, radius: zoom*10}),
+		    headers: { 'Content-Type': 'application/json' },
+		  });
+		const searchJson = await res.json();
+		const search = searchJson.body;
+		console.log(search);
 		setPlaceList(search.predictions);
 		setShowSearch(true);
 	}
