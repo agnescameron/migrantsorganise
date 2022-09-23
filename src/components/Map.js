@@ -67,7 +67,8 @@ const Map = () => {
 		evt.preventDefault()
 		const place = evt.target.value;
 		// console.log(place);
-		const search = await Places.autocomplete({input: place});
+		console.log('latlng is', lat + "," + lng)
+		const search = await Places.autocomplete({input: place, location: lat + "," + lng, radius: zoom*10});  //circle: "10@" + 
 		setPlaceList(search.predictions);
 		console.log("placelist is", placeList);
 
@@ -128,7 +129,13 @@ const Map = () => {
 	return (
 		<ReactMapGL
 			{...mapViewport}
-			onMove={evt => setMapViewport(evt.mapViewport)}
+			onMove={evt => { (() =>{
+				setMapViewport(evt.mapViewport);
+				setLat(evt.viewState.latitude);
+				setLng(evt.viewState.longitude);
+			})();
+		}
+			}
 			onClick={evt => {
 				mapClickable && (() =>{
 					setLat(evt.lngLat.lat);
@@ -208,7 +215,7 @@ const Map = () => {
 					)}
 					</ul>
 				}
-				<input type="text" id="placeSearch" onChange={findPlace}/>
+				<input type="text" id="placeSearch" onChange={findPlace} onClick={findPlace}/>
 			</div>
 
 		</ReactMapGL>
