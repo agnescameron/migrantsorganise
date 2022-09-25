@@ -4,12 +4,14 @@ import Map from './components/Map.js';
 import { MapProvider } from "./hooks/MapHooks.js";
 
 function App() {
-	const airtableDataRef = useRef([])
+	const airtableEventsDataRef = useRef([])
+	const airtableLocationsDataRef = useRef([])
 
 	// Pagination
 	const [currentPage, setCurrentPage] = useState(0)
 	const [numPages, setNumPages] = useState(1)
-	const [entries, setEntries] = useState([]);
+	const [events, setEvents] = useState([]);
+	const [locations, setLocations] = useState([]);
 	const PER_PAGE = 100 // to make things simpler, lets stick to the max number of records we receive from Airtable, which is 100
 	const paginationOffset = currentPage * PER_PAGE
 
@@ -17,9 +19,11 @@ function App() {
 	const airtableApiKey = process.env.REACT_APP_AIRTABLE_KEY
 	const airtableBase = process.env.REACT_APP_AIRTABLE_BASE
 	const airtableTable = process.env.REACT_APP_AIRTABLE_TABLE
+	const airtableTableLocations = process.env.REACT_APP_AIRTABLE_TABLE_LOCATIONS
 	const airtableUrl = process.env.REACT_APP_AIRTABLE_URL
 	const [airtableOffset, setAirtableOffset] = useState('')
-	const request = `${airtableUrl}/${airtableBase}/${airtableTable}?offset=${airtableOffset}`
+	const eventsRequest = `${airtableUrl}/${airtableBase}/${airtableTable}?offset=${airtableOffset}`
+	const locationsRequest = `${airtableUrl}/${airtableBase}/${airtableTableLocations}?offset=${airtableOffset}`
 
 	const fetchData = async (request) => {
 		const res = await fetch(request, {
@@ -32,32 +36,53 @@ function App() {
 	}
 
 	useEffect(() => {
-		fetchData(request)
+			fetchData(eventsRequest)
 			.then(data => {
 				const { records, offset } = data
-				
+				// console.log(records)
 				if (!records) return
-
 				if (offset) {
+					console.log("offset found on Events!")
 					setAirtableOffset(offset)
-					fetchData(request)
+					fetchData(eventsRequest)
 						.then(_data => {
-							airtableDataRef.current.push(_data.records)
+							airtableEventsDataRef.current.push(_data.records)
 						})
 				}
 				else {
-					airtableDataRef.current.push(records)
+					airtableEventsDataRef.current.push(records)
 				}
-				setNumPages(airtableDataRef.current.length)
-				setEntries(airtableDataRef.current[0])
+				setNumPages(airtableEventsDataRef.current.length)
+				setEvents(airtableEventsDataRef.current[0])
 			})
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+
+			fetchData(locationsRequest)
+			.then(data => {
+				const { records, offset } = data
+				// console.log(records)
+				if (!records) return
+				if (offset) {
+					console.log("offset found on Locations!")
+					setAirtableOffset(offset)
+					fetchData(locationsRequest)
+						.then(_data => {
+							airtableLocationsDataRef.current.push(_data.records)
+						})
+				}
+				else {
+					airtableLocationsDataRef.current.push(records)
+				}
+				setNumPages(airtableLocationsDataRef.current.length)
+				setLocations(airtableLocationsDataRef.current[0])
+			})
+			// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [airtableOffset])
+
 
 	return (
 		<div className="App">
 			<header className="App-header">			</header>
-				{entries.length > 0 ? <MapProvider locations={entries}><Map/></MapProvider> : 
+				{events.length > 0 && locations.length > 0 ? <MapProvider events={events} locations={locations}><Map/></MapProvider> : 
 					<div className='loading'>Loading map...</div>}
 		</div>
 	);

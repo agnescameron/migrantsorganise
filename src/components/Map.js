@@ -26,7 +26,7 @@ const Map = () => {
 	const [showSearch, setShowSearch] = useState(false);
 	const [mapClickable, setMapClickable] = useState(false);
 	const [markerForm, setMarkerForm] = useState(false);
-	const [zoom, setZoom] = useState(10);
+	const [zoom, setZoom] = useState(12);
 	const mapDispatch = useDispatchMap();
 	const { markers, origMarkers } = useStateMap();
 
@@ -83,7 +83,7 @@ const Map = () => {
 		width: "100wh",
 		longitude: details.result.geometry.location.lng,
 		latitude: details.result.geometry.location.lat,
-		zoom: zoom
+		zoom: 15
 	})
 	}
 
@@ -124,10 +124,25 @@ const Map = () => {
 			{
 				"fields": {
 					"Location": evt.target.placename.value,
-					"Notes": evt.target.notes.value,
-					"Latitude": parseFloat(evt.target.lat.value),
-					"Longitude": parseFloat(evt.target.lng.value),
+					"Event": evt.target.notes.value,
+					// "Latitude": parseFloat(evt.target.lat.value),
+					// "Longitude": parseFloat(evt.target.lng.value),
 					"Type": attributes,
+				}
+			},
+		], function(err, records) {
+		if (err) {
+				console.error(err);
+				return;
+			}
+		})
+
+		base(process.env.REACT_APP_AIRTABLE_TABLE_LOCATIONS).create([
+			{
+				"fields": {
+					"Location": evt.target.placename.value,
+					"Lat": parseFloat(evt.target.lat.value),
+					"Lng": parseFloat(evt.target.lng.value),
 				}
 			},
 		], function(err, records) {

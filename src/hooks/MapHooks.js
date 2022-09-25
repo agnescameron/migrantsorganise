@@ -3,17 +3,48 @@ import React, { createContext, useContext, useReducer } from "react";
 const MapStateContext = createContext();
 const MapDispatchContext = createContext();
 
-export const MapProvider = ({ children, locations }) => {
+export const MapProvider = ({ children, events, locations }) => {
 	const markers = []
-	for (const location of locations) {
+
+
+	// let locationIdArray = []
+	// let matchedLocations = {}
+	// let match = ""
+	// // make an array of locationIDs
+	// locations.map(( location, key ) => {
+	// 	locationIdArr.push(location.fields.id)
+	// })
+
+
+	// locations.map(( location, key ) => {
+	// 	matchedLocations[location] = "" // adds this location object as a key with empty string
+	// 	// console.log(location.id)
+	// 	// match = events.filter(event => event.fields.Location[0] === location.id) // Matches event.location with location IDs in Locations; returns array of FULL event objects 
+	// 	// console.log(match)
+	// })
+
+	// events.map(( event, key ) => {
+	// 	console.log(event.fields.Longitude)
+	// 	// match = events.filter(event => event.fields.Location[0] === location.id) // Matches event.location with location IDs in Locations; returns array of FULL event objects 
+	// 	// console.log(match)
+	// })
+
+	// console.log(match)
+
+	const mappedEvents = events.filter(event => event.fields.Latitude != undefined && event.fields.Longitude != undefined)
+	const floatingEvents = events.filter(event => event.fields.Latitude === undefined && event.fields.Longitude === undefined)
+
+	console.log(locations, events)
+
+	for (const event of mappedEvents) {
 		markers.push({
-			'lng': location.fields.Longitude, 
-			'lat': location.fields.Latitude,
+			'event': event.fields.Event, 
+			'lng': event.fields.Longitude, 
+			'lat': event.fields.Latitude,
 			'icon': 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png',
-			'notes': location.fields.Notes,
-			'name': location.fields.Location,
-			'types': location.fields.Type,
-			'group': location.fields.Group,
+			'notes': event.fields.Event,
+			'tags': event.fields.Tags,
+			'narrative': event.fields["Narrative Theme"],
 			 })
 	}
 	const [state, dispatch] = useReducer(MapReducer, { markers: markers, origMarkers: markers });
