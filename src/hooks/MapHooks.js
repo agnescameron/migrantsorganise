@@ -1,5 +1,8 @@
 // mapHook.js
 import React, { createContext, useContext, useReducer } from "react";
+import redMarker from "../img/Map-Marker-PNG-File.png";
+import blueMarker from "../img/Map-Marker-PNG-File-blue.png";
+
 const MapStateContext = createContext();
 const MapDispatchContext = createContext();
 
@@ -45,12 +48,24 @@ export const MapProvider = ({ children, events, locations }) => {
 
 	console.log(locations, events)
 
+	for (const location of mappedLocations) {
+		markers.push({
+			'name': location.fields.Location, 
+			'lng': location.fields.Lng, 
+			'lat': location.fields.Lat,
+			'icon': 'https://i.imgur.com/5oHvi7P.png',
+			'notes': location.fields.Address,
+			'description': location.fields.Description,
+			'contact': location.fields["Contact Details"],
+			 })
+	}
+
 	for (const event of mappedEvents) {
 		markers.push({
-			'name': event.fields.Location, 
-			'lng': parseFloat(event.fields.Longitude) + Math.random() * 0.001, 
-			'lat': parseFloat(event.fields.Latitude) + Math.random() * 0.001,
-			'icon': 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png',
+			'name': event.fields["Location Name"], 
+			'lng': parseFloat(event.fields.Longitude) + Math.random() * 0.005, 
+			'lat': parseFloat(event.fields.Latitude) + Math.random() * 0.005,
+			'icon': "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/speech-balloon_1f4ac.png",
 			'notes': event.fields.Event,
 			'tags': event.fields.Tags,
 			'narrative': event.fields["Narrative Theme"],
@@ -58,16 +73,6 @@ export const MapProvider = ({ children, events, locations }) => {
 	}
 
 	console.log(markers)
-
-	// for (const location of mappedLocations) {
-	// 	markers.push({
-	// 		'event': location.fields.Location, 
-	// 		'lng': location.fields.Lng, 
-	// 		'lat': location.fields.Lat,
-	// 		'icon': 'https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-PNG-File.png',
-	// 		'notes': location.fields.Location,
-	// 		 })
-	// }
 
 	const [state, dispatch] = useReducer(MapReducer, { markers: markers, origMarkers: markers });
 	return (

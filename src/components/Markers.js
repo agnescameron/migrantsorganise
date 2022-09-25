@@ -17,6 +17,9 @@ export const Markers = () => {
 					latitude={parseFloat(marker.lat)}
 					longitude={parseFloat(marker.lng)}
 					notes={marker.notes}
+					address={marker.address}
+					description={marker.description}
+					contact={marker.contact}
 			 >
 				 <img src={marker.icon} 
 					onClick={() => {
@@ -33,7 +36,7 @@ export const Markers = () => {
 					closeOnClick={false}
 					onClose={() => setSelectedMarker(null)}
 				>
-					<h2>{selectedMarker.name}</h2><p>{selectedMarker.notes}</p>
+					<h2>{selectedMarker.name}</h2><p>{selectedMarker.notes}</p><p>{selectedMarker.description}</p><p>{selectedMarker.contact}</p>
 				</Popup>
 				)}
 		</>

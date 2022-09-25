@@ -7,7 +7,6 @@ import ReactMapGL from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import "./Map.css";
 import fetch from 'node-fetch';
-
 import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker';
 
 mapboxgl.workerClass = MapboxWorker;
@@ -186,7 +185,7 @@ const Map = () => {
 					mapDispatch({ type: "TEMP_MARKER", 
 						payload: { marker: 
 							{...evt.lngLat, 
-								icon: "https://www.pngall.com/wp-content/uploads/2017/05/Map-Marker-Free-Download-PNG.png"} 
+								icon: "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/cross-mark_274c.png"} 
 							}});
 					setMarkerForm(true);
 					})();
