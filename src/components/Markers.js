@@ -12,10 +12,10 @@ export const Markers = () => {
 		<>
 			{markers && markers.map((marker, index) => (
 				<Marker
-					offsetTop={-15}
-					offsetLeft={-15}
-					latitude={marker.lat}
-					longitude={marker.lng}
+					offsetTop={15}
+					offsetLeft={15}
+					latitude={parseFloat(marker.lat)}
+					longitude={parseFloat(marker.lng)}
 					notes={marker.notes}
 			 >
 				 <img src={marker.icon} 

@@ -26,7 +26,7 @@ const Map = () => {
 	const [showSearch, setShowSearch] = useState(false);
 	const [mapClickable, setMapClickable] = useState(false);
 	const [markerForm, setMarkerForm] = useState(false);
-	const [zoom, setZoom] = useState(12);
+	const [zoom, setZoom] = useState(10);
 	const mapDispatch = useDispatchMap();
 	const { markers, origMarkers } = useStateMap();
 
@@ -120,22 +120,22 @@ const Map = () => {
 			}
 		})
 
-		base(process.env.REACT_APP_AIRTABLE_TABLE).create([
-			{
-				"fields": {
-					"Location": evt.target.placename.value,
-					"Event": evt.target.notes.value,
-					// "Latitude": parseFloat(evt.target.lat.value),
-					// "Longitude": parseFloat(evt.target.lng.value),
-					"Type": attributes,
-				}
-			},
-		], function(err, records) {
-		if (err) {
-				console.error(err);
-				return;
-			}
-		})
+		// base(process.env.REACT_APP_AIRTABLE_TABLE).create([
+		// 	{
+		// 		"fields": {
+		// 			// "Location": evt.target.placename.value,
+		// 			"Event": evt.target.notes.value,
+		// 			"Latitude": parseFloat(evt.target.lat.value),
+		// 			"Longitude": parseFloat(evt.target.lng.value),
+		// 			"Type": attributes,
+		// 		}
+		// 	},
+		// ], function(err, records) {
+		// if (err) {
+		// 		console.error(err);
+		// 		return;
+		// 	}
+		// })
 
 		base(process.env.REACT_APP_AIRTABLE_TABLE_LOCATIONS).create([
 			{
@@ -143,6 +143,10 @@ const Map = () => {
 					"Location": evt.target.placename.value,
 					"Lat": parseFloat(evt.target.lat.value),
 					"Lng": parseFloat(evt.target.lng.value),
+					// "Event Link": evt.target.notes.value,
+					// "Comments" : "",
+					// "Contact Details" : "",
+					// "Description" : ""
 				}
 			},
 		], function(err, records) {
