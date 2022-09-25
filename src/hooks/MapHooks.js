@@ -68,7 +68,7 @@ export const MapProvider = ({ children, events, locations }) => {
 			'icon': "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/speech-balloon_1f4ac.png",
 			'notes': event.fields.Event,
 			'tags': event.fields.Tags,
-			'narrative': event.fields["Narrative Theme"],
+			'group': event.fields.Group,
 		 })
 	}
 
