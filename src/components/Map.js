@@ -169,103 +169,101 @@ const Map = () => {
 	}
 
 	return (
-		<ReactMapGL
-			{...mapViewport}
-			onMove={evt => { (() =>{
-				setMapViewport(evt.mapViewport);
-				setLat(evt.viewState.latitude);
-				setLng(evt.viewState.longitude);
-			})();
-		}
-			}
-			onClick={evt => {
-				mapClickable && (() =>{
-					setLat(evt.lngLat.lat);
-					setLng(evt.lngLat.lng);
-					mapDispatch({ type: "TEMP_MARKER", 
-						payload: { marker: 
-							{...evt.lngLat, 
-								icon: "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/cross-mark_274c.png"} 
-							}});
-					setMarkerForm(true);
-					})();
-				}
-			}
-			style={{width: "100vw", height: "100vh"}}
-			mapboxAccessToken={mapboxToken}
-			mapStyle="mapbox://styles/mapbox/streets-v11"
-			onViewportChange={setMapViewport}
-		>
-			<Markers/>
+		<div className="mapContainer">
+			<div className="narrativeGroupContainer">
+					<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
+						{ mapClickable ? <div id="cancelAddLocation">Click on the map or click here to Cancel</div> : <div><div className="" id="bigPlus">+</div><div className="addLocationText">"Add a Location, Memory or Sighting"</div></div> }
 
-			{ markerForm && (
-				<div id="markerFormContainer">
-					<form id="newMarkerForm" onSubmit={createMarker}>
-						<input id="placenameInput" type="text" name="placename" placeholder="Enter Place Name"/>
-						<textarea id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"></textarea>
+					</div>
 
-						<span><input type="radio" id="hope" name="type" value="A Hopeful Experience" />
-						<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
-						<span><input type="radio" id="support" name="type" value="A Place of Support" />
-						<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
-						<span><input type="radio" id="memory" name="type" value="A Memory" />
-						<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
-						<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
-						<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
+					<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
+						Show all map locations
+					</div>
 
-						<input type="hidden" name="lat" value={lat} />
-						<input type="hidden" name="lng" value={lng} />
-						<input id="submitButton" type="submit" value="Add New Note to Map" />
-						<input id="closeFormButton" type="button" value="Close Form" onClick={function() {setMarkerForm(false)}} />
+					{origMarkers && origMarkers.reduce(function(groups, marker){ 
+						// selects the list of possible groups that the markers can belong to
+						if(marker.group !== undefined){
+							marker.group.forEach(group => {
+								if (!groups.includes(group)) {
+									groups.push(group);
+									}
+								})
+							}
+							return groups;
+						}, [])
+						.map((group) =>
+							<div>
+								<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
+							</div>
+						)}
+
+								<div id="search-input" className="searchBox" onMouseLeave={hideSearch} onMouseEnter={() => setShowSearch(true)}>
+					{placeList.length > 0 && showSearch &&
+						<ul className="noPoints">
+						{ placeList.map( (prediction) => 
+							<li onClick={e => zoomToPlace(prediction)}>{prediction.description}</li>
+						)}
+						</ul>
+					}
+					<form onSubmit={submitSearch}>
+						<input type="text" id="placeSearch" placeholder="Search for a Location..." onChange={findPlace}/>
 					</form>
 				</div>
-			)}
-
-			<div className="narrativeGroupContainer">
-				<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
-					<div className="" id="bigPlus">+</div>
-					{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
-
-				</div>
-
-				<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
-					Show all map locations
-				</div>
-
-				{origMarkers && origMarkers.reduce(function(groups, marker){ 
-					// selects the list of possible groups that the markers can belong to
-					if(marker.group !== undefined){
-						marker.group.forEach(group => {
-							if (!groups.includes(group)) {
-								groups.push(group);
-								}
-							})
-						}
-						return groups;
-					}, [])
-					.map((group) =>
-						<div>
-							<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
-						</div>
-					)}
-
-							<div id="search-input" className="searchBox" onMouseLeave={hideSearch} onMouseEnter={() => setShowSearch(true)}>
-				Search: {placeList.length > 0 && showSearch &&
-					<ul className="noPoints">
-					{ placeList.map( (prediction) => 
-						<li onClick={e => zoomToPlace(prediction)}>{prediction.description}</li>
-					)}
-					</ul>
+			</div>
+			<ReactMapGL
+				{...mapViewport}
+				onMove={evt => { (() =>{
+					setMapViewport(evt.mapViewport);
+					setLat(evt.viewState.latitude);
+					setLng(evt.viewState.longitude);
+				})();
+			}
 				}
-				<form onSubmit={submitSearch}>
-					<input type="text" id="placeSearch" onChange={findPlace}/>
-				</form>
-			</div>
+				onClick={evt => {
+					mapClickable && (() =>{
+						setLat(evt.lngLat.lat);
+						setLng(evt.lngLat.lng);
+						mapDispatch({ type: "TEMP_MARKER", 
+							payload: { marker: 
+								{...evt.lngLat, 
+									icon: "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/cross-mark_274c.png"} 
+								}});
+						setMarkerForm(true);
+						})();
+					}
+				}
+				// style={}
+				mapboxAccessToken={mapboxToken}
+				mapStyle="mapbox://styles/mapbox/streets-v11"
+				onViewportChange={setMapViewport}
+			>
+				<Markers/>
 
-			
-			</div>
+				{ markerForm && (
+					<div id="markerFormContainer">
+						<form id="newMarkerForm" onSubmit={createMarker}>
+							<input id="placenameInput" type="text" name="placename" placeholder="Enter Place Name"/>
+							<textarea id="placeNotesInput" type="text" name="notes" placeholder="Enter Notes"></textarea>
 
-		</ReactMapGL>
+							<span><input type="radio" id="hope" name="type" value="A Hopeful Experience" />
+							<label htmlFor="vehicle1"> <span id="formIcon">🌸</span> <em>A hopeful experience</em> </label></span>
+							<span><input type="radio" id="support" name="type" value="A Place of Support" />
+							<label htmlFor="vehicle1"> <span id="formIcon">✊</span> <em>A place of support</em> </label></span>
+							<span><input type="radio" id="memory" name="type" value="A Memory" />
+							<label htmlFor="vehicle1"> <span id="formIcon">📝</span> <em>A memory or anecdote</em> </label></span>
+							<span><input type="radio" id="Home Office Location" name="type" value="Home Office/Hostile Environment Location" />
+							<label htmlFor="vehicle1"> <span id="formIcon">🛂</span> <em>A Home Office location</em> </label></span>
+
+							<input type="hidden" name="lat" value={lat} />
+							<input type="hidden" name="lng" value={lng} />
+							<input id="submitButton" type="submit" value="Add New Note to Map" />
+							<input id="closeFormButton" type="button" value="Close Form" onClick={function() {setMarkerForm(false)}} />
+						</form>
+					</div>
+				)}
+
+			</ReactMapGL>
+		</div>
 	);
 }
 

@@ -1,6 +1,29 @@
 .App-header {
-	width: 100vw;
+	width: auto;
 }
+
+.mapContainer {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: flex-start;
+	width: 100vw;
+	height: 100vh;
+
+	}
+
+.mapboxgl-map {
+
+	width: 80vw !important;
+	height: 100vh !important;
+	/*position: relative !important;*/
+	/*left: 20vw !important;*/
+
+}
+
+/*.mapboxgl-canvas-container, .mapboxgl-canvas{
+	width: 80vw;
+}
+*/
 
 #markerFormContainer {
 	position: fixed;
@@ -62,10 +85,17 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 }
 
 #search-input {
-	padding: 10px;
+	padding: 1vh;
 	z-index: 100;
 	background-color: white;
 	border-radius: 15px;
+	margin-top: auto;
+
+}
+
+#placeSearch {
+	width: 18vw;
+	font-size: 1.5rem;
 }
 
 .menuList {
@@ -119,10 +149,10 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 	}
 
 .narrativeGroupContainer {
-	position: fixed;
+	/*position: fixed;*/
 	top: 0;
 	left: 0;
-	padding-left: 10px;
+	padding-left: 0px;
 	background-color: rgba(255,255,255,255.5);
 	height: 100vh;
 	width: 20vw;
@@ -141,7 +171,7 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 	/*border-radius: 10px;*/
 	/*background-color: white;*/
 	/*margin: 20px;*/
-	padding: 10px;
+	padding: 1vh;
 	font-size: 1rem;
 	display: flex;
 	flex-flow: column nowrap;
@@ -150,7 +180,7 @@ box-shadow: 4px 3px 10px -3px rgba(0,0,0,0.48);
 	text-align: center;
 	border-radius: 10px;
 	border: 1px black solid;
-	margin: 10px;}
+	margin: 0.5vh;}
 
 .navButton:hover {
 	background-color: black;
@@ -200,26 +230,110 @@ color: black;
 
 @media screen and (max-width: 800px) {
 
+	.mapContainer {
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: flex-start;
+	width: 100vw;
+	height: 100vh;
+	}
+
+	.mapboxgl-map {
+
+	width: 100vw !important;
+	height: 60vh !important;
+	/*position: relative !important;*/
+	/*left: 20vw !important;*/
+
+}
+
 	.App-header {
 		width: 100vw;
 	}	
 
   #markerFormContainer {
-	width: 100vw;
-	height:  50vh;
-	position: fixed;
-	top: auto;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	padding: 0 0 0 0;
-  border-radius: 0px;
+		width: 100vw;
+		height:  50vh;
+		position: fixed;
+		top: auto;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		padding: 0 0 0 0;
+	  border-radius: 0px;
   }
 
   #newMarkerForm {
     width: 90vw;
     padding: 3vh;
   }
+
+  .narrativeGroupContainer {
+		/*position: fixed;*/
+		top: 0;
+		left: 0;
+		padding-left: 10px;
+		background-color: rgba(255,255,255,255.5);
+		height: 40vh;
+		width: 100vw;
+		display: flex;
+		flex-flow: row wrap;
+		justify-content: flex-start;
+		z-index: 100;
+		font-size: 0.6rem;
+}
+
+.navButton {
+/*	outline-top: 1px black solid;
+	outline-bottom: 1px black solid;*/
+	/*border-radius: 10px;*/
+	/*background-color: white;*/
+	/*margin: 20px;*/
+	padding: 3px;
+	font-size: 0.8rem;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: center;
+	align-content: center;
+	text-align: center;
+	border-radius: 10px;
+	border: 1px black solid;
+	margin: 3px;}
+
+#addLocation {
+	position: fixed;
+/*	flex-flow: column nowrap;
+	justify-content: center;
+	align-content: center;
+*/	text-align: center;
+	border-radius: 90px;
+	border: 1px black solid;
+	bottom: 5vh;
+	right: 5vh;
+	height: 20vw;
+	width: 20vw;
+	background-color: white;
+	color: white;
+	/*margin: 10px;*/
+}
+
+#cancelAddLocation {
+	/*display: none;*/
+	color: black;
+}
+
+#bigPlus {
+	display: block;
+	font-size: 5rem;
+	color: black;
+	z-index: 100;
+	padding-bottom: 1rem;
+}
+
+.addLocationText {
+	display: none;
+}
+
 
   #search-input {
 	width: 60vw;
