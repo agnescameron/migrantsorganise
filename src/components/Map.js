@@ -222,6 +222,16 @@ const Map = () => {
 			)}
 
 			<div className="narrativeGroupContainer">
+				<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
+					<div className="" id="bigPlus">+</div>
+					{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
+
+				</div>
+
+				<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
+					Show all map locations
+				</div>
+
 				{origMarkers && origMarkers.reduce(function(groups, marker){ 
 					// selects the list of possible groups that the markers can belong to
 					if(marker.group !== undefined){
@@ -238,19 +248,9 @@ const Map = () => {
 							<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
 						</div>
 					)}
-			</div>
 
-			<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
-				{ mapClickable ? "Cancel" : "Add a Location, Memory or Sighting" }
-			</div>
-
-			<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
-				Show all map locations
-			</div>
-
-
-			<div id="search-input" className="searchBox" onMouseLeave={hideSearch} onMouseEnter={() => setShowSearch(true)}>
-				{placeList.length > 0 && showSearch &&
+							<div id="search-input" className="searchBox" onMouseLeave={hideSearch} onMouseEnter={() => setShowSearch(true)}>
+				Search: {placeList.length > 0 && showSearch &&
 					<ul className="noPoints">
 					{ placeList.map( (prediction) => 
 						<li onClick={e => zoomToPlace(prediction)}>{prediction.description}</li>
@@ -260,6 +260,9 @@ const Map = () => {
 				<form onSubmit={submitSearch}>
 					<input type="text" id="placeSearch" onChange={findPlace}/>
 				</form>
+			</div>
+
+			
 			</div>
 
 		</ReactMapGL>
