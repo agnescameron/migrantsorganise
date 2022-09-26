@@ -21,6 +21,7 @@ export const Markers = () => {
 					description={marker.description}
 					contact={marker.contact}
 					group={marker.group}
+					category={marker.category}
 			 >
 				 <img src={marker.icon} 
 					onClick={() => {

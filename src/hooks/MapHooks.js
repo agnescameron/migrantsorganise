@@ -49,26 +49,33 @@ export const MapProvider = ({ children, events, locations }) => {
 	console.log(locations, events)
 
 	for (const location of mappedLocations) {
+		let icon = ""
+		console.log(location.fields.Category[0])
+		location.fields.Category[0] != undefined && location.fields.Category[0] === "Countermapping" ? icon = "https://images.emojiterra.com/openmoji/v13.1/512px/1f3e0.png" : icon = "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/passport-control_1f6c2.png"
 		markers.push({
 			'name': location.fields.Location, 
 			'lng': location.fields.Lng, 
 			'lat': location.fields.Lat,
-			'icon': 'https://i.imgur.com/5oHvi7P.png',
+			'icon': icon,
 			'notes': location.fields.Address,
 			'description': location.fields.Description,
 			'contact': location.fields["Contact Details"],
+			'category' : location.fields.Category,
 			 })
 	}
 
 	for (const event of mappedEvents) {
+		let icon = ""
+		event.fields.Category[0] != undefined && event.fields.Category[0] === "Countermapping" ? icon = "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/red-heart_2764-fe0f.png" : icon = "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/speech-balloon_1f4ac.png"
 		markers.push({
 			'name': event.fields["Location Name"], 
 			'lng': parseFloat(event.fields.Longitude) + Math.random() * 0.005, 
 			'lat': parseFloat(event.fields.Latitude) + Math.random() * 0.005,
-			'icon': "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/325/speech-balloon_1f4ac.png",
+			'icon': icon,
 			'notes': event.fields.Event,
 			'tags': event.fields.Tags,
 			'group': event.fields.Group,
+			'category' : event.fields.Category,
 		 })
 	}
 

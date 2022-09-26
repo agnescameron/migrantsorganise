@@ -25,7 +25,7 @@ const Map = () => {
 	const [showSearch, setShowSearch] = useState(false);
 	const [mapClickable, setMapClickable] = useState(false);
 	const [markerForm, setMarkerForm] = useState(false);
-	const [zoom, setZoom] = useState(10);
+	const [zoom, setZoom] = useState(5);
 	const mapDispatch = useDispatchMap();
 	const { markers, origMarkers } = useStateMap();
 
@@ -52,6 +52,15 @@ const Map = () => {
 		const markerGroup = origMarkers.filter(marker => marker.group !== undefined && marker.group.includes(group) )
 		mapDispatch({ type: "MARKER_SUBGROUP", payload:{
 			markers: markerGroup
+		}})
+	}
+
+	const showCategory = (evt) => {
+		evt.preventDefault()
+		const category = evt.target.innerText;
+		const markerCategory = origMarkers.filter(marker => marker.category !== undefined && marker.category.includes(category) )
+		mapDispatch({ type: "MARKER_SUBGROUP", payload:{
+			markers: markerCategory
 		}})
 	}
 
@@ -171,33 +180,32 @@ const Map = () => {
 	return (
 		<div className="mapContainer">
 			<div className="narrativeGroupContainer">
-					<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
-						{ mapClickable ? <div id="cancelAddLocation">Click on the map or click here to Cancel</div> : <div><div className="" id="bigPlus">+</div><div className="addLocationText">"Add a Location, Memory or Sighting"</div></div> }
+				<div className="navButton" id="addLocation" onClick={() => toggleMapClickable()}>
+					{ mapClickable ? <div id="cancelAddLocation">Click on the map or click here to Cancel</div> : <div><div className="" id="bigPlus">+</div><div className="addLocationText">Add a Location, Memory or Sighting</div></div> }
+				</div>
 
-					</div>
+				<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
+					Show all map locations
+				</div>
 
-					<div className="navButton" id="toggleMap" onClick={() => mapDispatch({ type: "RESET"})}>
-						Show all map locations
-					</div>
+				{origMarkers && origMarkers.reduce(function(groups, marker){ 
+					// selects the list of possible groups that the markers can belong to
+					if(marker.group !== undefined){
+						marker.group.forEach(group => {
+							if (!groups.includes(group)) {
+								groups.push(group);
+								}
+							})
+						}
+						return groups;
+					}, [])
+					.map((group) =>
+						<div>
+							<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
+						</div>
+					)}
 
-					{origMarkers && origMarkers.reduce(function(groups, marker){ 
-						// selects the list of possible groups that the markers can belong to
-						if(marker.group !== undefined){
-							marker.group.forEach(group => {
-								if (!groups.includes(group)) {
-									groups.push(group);
-									}
-								})
-							}
-							return groups;
-						}, [])
-						.map((group) =>
-							<div>
-								<div className="narrativeGroup navButton" value={group} onClick={showNarrative}>{group}</div>
-							</div>
-						)}
-
-								<div id="search-input" className="searchBox" onMouseLeave={hideSearch} onMouseEnter={() => setShowSearch(true)}>
+				<div id="search-input" className="searchBox" onMouseLeave={hideSearch} onMouseEnter={() => setShowSearch(true)}>
 					{placeList.length > 0 && showSearch &&
 						<ul className="noPoints">
 						{ placeList.map( (prediction) => 
@@ -209,6 +217,25 @@ const Map = () => {
 						<input type="text" id="placeSearch" placeholder="Search for a Location..." onChange={findPlace}/>
 					</form>
 				</div>
+			</div>
+
+			<div className="categoryContainer">
+				{origMarkers && origMarkers.reduce(function(categories, marker){ 
+					// selects the list of possible groups that the markers can belong to
+					if(marker.category !== undefined){
+						marker.category.forEach(category => {
+							if (!categories.includes(category)) {
+								categories.push(category);
+								}
+							})
+						}
+						return categories;
+					}, [])
+					.map((category) =>
+						<div>
+							<div className="narrativeGroup navButton" value={category} onClick={showCategory}>{category}</div>
+						</div>
+					)}
 			</div>
 			<ReactMapGL
 				{...mapViewport}
